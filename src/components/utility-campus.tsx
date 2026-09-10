@@ -27,7 +27,6 @@ type WorldProps = {
 
 const IDLE_NEURO = "NEURO: Campus is operational. Select an agent or a building. Agents are MOCK.";
 const AGENT_NEURO = "NEURO: Mock agent selected. Stick figures are MOCK bodies. No live agent is on this floor.";
-const CALM_SRC = "/media/web/origin-ios.mp4";
 const CALM_POSTER = "/media/stills/origin-ios.jpg";
 
 type Artifact = {
@@ -59,7 +58,6 @@ export function UtilityCampus({
   const [prompt, setPrompt] = useState("");
   const [budget] = useState(10);
   const [artifact, setArtifact] = useState<Artifact | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (compute === "minimum") {
@@ -103,17 +101,6 @@ export function UtilityCampus({
     if (building) setNeuro(building.neuro);
     else setNeuro(IDLE_NEURO);
   }, [building, inside]);
-
-  useEffect(() => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      v.pause();
-      v.currentTime = 4;
-      return;
-    }
-    void v.play().catch(() => undefined);
-  }, []);
 
   const enter = (id: string) => {
     onFocus(id);
@@ -170,7 +157,7 @@ export function UtilityCampus({
           </button>
           <div className="min-w-0 flex-1">
             <img
-              src="/media/stills/origin-engine.png?v=2"
+              src="/media/stills/origin-engine.jpg?v=3"
               alt="Origin Engine"
               data-origin-engine
               className="origin-engine-lockup h-8 w-auto max-w-[min(58vw,300px)] object-contain object-left sm:h-9"
@@ -272,16 +259,10 @@ export function UtilityCampus({
       </header>
 
       <div className="relative min-h-0 flex-1">
-        <video
-          ref={videoRef}
+        <img
           className="origin-ios-video pointer-events-none absolute inset-0 h-full w-full object-cover"
-          src={CALM_SRC}
-          poster={CALM_POSTER}
-          muted
-          loop
-          playsInline
-          autoPlay
-          preload="auto"
+          src={CALM_POSTER}
+          alt=""
           aria-hidden
         />
         <div className={cn("pointer-events-none absolute inset-0", inside ? "bg-obsidian/70" : "bg-obsidian/40")} />
@@ -415,7 +396,7 @@ export function UtilityCampus({
           >
             <div className="px-4 pt-4">
               <img
-                src="/media/stills/origin-engine.png?v=2"
+                src="/media/stills/origin-engine.jpg?v=3"
                 alt="Origin Engine"
                 className="origin-engine-lockup mx-auto h-10 w-auto max-w-full object-contain"
               />

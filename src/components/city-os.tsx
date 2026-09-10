@@ -6,9 +6,8 @@ import { useCompute } from "@/lib/compute";
 import { AgentNode, AgentDock, AttentionStrip, ComputeDock, Corridor, Disclose, HierarchyTrail, ResponseScene } from "@/components/grid-chrome";
 import { agentStateOf } from "@/lib/design-system";
 import { INFO_CAPS, attentionFloor, infoDepthFor, nextDepth, rankAgents, take, type InfoDepth } from "@/lib/info";
-import { CompareFloors, FloorDock, GuidedTour, ProtocolTour, StartHere } from "@/components/city-flow";
-import { FilmPlayer, type FilmHandle } from "@/components/film-player";
-import { AtgInterior } from "@/components/atg-floor";
+import { FloorDock, StartHere } from "@/components/start-floor";
+import type { FilmHandle } from "@/components/film-player";
 import { StatusChip } from "@/components/status-chip";
 import { chapterById } from "@/lib/film";
 import {
@@ -84,6 +83,29 @@ export function CityOS() {
   }> | null>(null);
   const [Street, setStreet] = useState<ComponentType<{ onClose: () => void; onCity: () => void }> | null>(null);
   const [Foil, setFoil] = useState<ComponentType<{ onClose: () => void }> | null>(null);
+  const [Film, setFilm] = useState<any>(null);
+  const [Guide, setGuide] = useState<ComponentType<{
+    step: number;
+    onStep: (n: number) => void;
+    onFilm: (id: string) => void;
+    onEnter: (id: string) => void;
+    onCity: () => void;
+  }> | null>(null);
+  const [Proto, setProto] = useState<ComponentType<{
+    step: number;
+    onStep: (n: number) => void;
+    onFilm: (id: string) => void;
+    onEnter: (id: string) => void;
+    onCity: () => void;
+    onMcp: () => void;
+  }> | null>(null);
+  const [Compare, setCompare] = useState<ComponentType<{
+    a: string;
+    b: string;
+    onA: (id: string) => void;
+    onB: (id: string) => void;
+    onDistrict: (id: string) => void;
+  }> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const filmRef = useRef<FilmHandle | null>(null);
 
@@ -162,6 +184,31 @@ export function CityOS() {
       alive = false;
     };
   }, [view, mode, selected, filmOpen]);
+
+  useEffect(() => {
+    if (!filmOpen) return;
+    let alive = true;
+    void import("@/components/film-player").then((mod) => {
+      if (alive) setFilm(() => mod.FilmPlayer);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [filmOpen]);
+
+  useEffect(() => {
+    if (!["journey", "protocol", "compare"].includes(mode)) return;
+    let alive = true;
+    void import("@/components/city-flow").then((mod) => {
+      if (!alive) return;
+      setGuide(() => mod.GuidedTour);
+      setProto(() => mod.ProtocolTour);
+      setCompare(() => mod.CompareFloors);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [mode]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -566,7 +613,7 @@ export function CityOS() {
             onClick={() => openDistrict("utility")}
             className="inline-flex h-11 items-center gap-2 rounded-md bg-obsidian/55 px-3 text-2xs font-medium tracking-[0.16em] text-red shadow-[var(--shadow-border)] backdrop-blur-sm transition-transform duration-150 ease-out hover:text-paper active:scale-[0.96]"
           >
-            <img src="/media/stills/origin-engine-mark.png?v=2" alt="" className="origin-engine-lockup h-6 w-auto object-contain" />
+            <img src="/media/stills/origin-engine-mark.jpg?v=3" alt="" className="origin-engine-lockup h-6 w-auto object-contain" />
             ORIGIN ENGINE
           </button>
           <button
@@ -615,8 +662,8 @@ export function CityOS() {
         />
       ) : null}
 
-      {view === "city" && mode === "journey" && !filmOpen ? (
-        <GuidedTour
+      {view === "city" && mode === "journey" && !filmOpen && Guide ? (
+        <Guide
           step={step}
           onStep={gotoStep}
           onFilm={playFilm}
@@ -625,8 +672,8 @@ export function CityOS() {
         />
       ) : null}
 
-      {view === "city" && mode === "protocol" && !filmOpen ? (
-        <ProtocolTour
+      {view === "city" && mode === "protocol" && !filmOpen && Proto ? (
+        <Proto
           step={step}
           onStep={gotoProtocol}
           onFilm={playFilm}
@@ -636,8 +683,8 @@ export function CityOS() {
         />
       ) : null}
 
-      {view === "city" && mode === "compare" && !filmOpen ? (
-        <CompareFloors
+      {view === "city" && mode === "compare" && !filmOpen && Compare ? (
+        <Compare
           a={compareA}
           b={compareB}
           onA={setCompareA}
@@ -691,8 +738,8 @@ export function CityOS() {
         )}
         aria-hidden={!filmOpen}
       >
-        {filmOpen ? (
-          <FilmPlayer
+        {filmOpen && Film ? (
+          <Film
             ref={filmRef}
             cinematic
             active={filmOpen}
@@ -923,9 +970,24 @@ function DistrictDrawer({
   onProtocol: (at?: number) => void;
 }) {
   const [depth, setDepth] = useState(startDepth);
+  const [AtgPane, setAtgPane] = useState<ComponentType<{
+    onProtocol: () => void;
+    onMcp: () => void;
+    onDistrict: (id: string) => void;
+  }> | null>(null);
   useEffect(() => {
     setDepth(startDepth);
   }, [startDepth, id]);
+  useEffect(() => {
+    if (id !== "atg") return;
+    let alive = true;
+    void import("@/components/atg-floor").then((mod) => {
+      if (alive) setAtgPane(() => mod.AtgInterior);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [id]);
   const district = DISTRICT_BY_ID[id];
   const caps = INFO_CAPS[depth];
   if (!district) return null;
@@ -974,7 +1036,7 @@ function DistrictDrawer({
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
         {atg ? (
-          <AtgInterior onProtocol={onProtocol} onMcp={onMcp} onDistrict={onDistrict} />
+          AtgPane ? <AtgPane onProtocol={onProtocol} onMcp={onMcp} onDistrict={onDistrict} /> : <p className="text-sm text-mute">Loading ATG…</p>
         ) : (
           <p className="text-sm leading-relaxed text-mute">{district.role}</p>
         )}

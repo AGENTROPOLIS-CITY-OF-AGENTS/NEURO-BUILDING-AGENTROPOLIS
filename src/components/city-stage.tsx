@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { CityField } from "@/components/city-field";
 import { AGENTS, DISTRICTS, GRID_ROUTES, type District } from "@/lib/grid";
 import { cn } from "@/lib/utils";
@@ -14,12 +13,9 @@ type CityStageProps = {
   onSelect: (id: string) => void;
 };
 
-const OVERVIEW_SRC = "/media/web/city-overview.mp4";
 const OVERVIEW_POSTER = "/media/stills/city-overview.jpg";
-const BOTBAE_HERO = "/media/web/botbae-hero.mp4";
 const BOTBAE_POSTER = "/media/stills/botbae-hero.jpg";
 const UTILITY_POSTER = "/media/stills/origin-ios.jpg";
-const PX_SRC = "/media/web/px-neuro-cinematic.mp4";
 const PX_POSTER = "/media/stills/px-lockup.jpg";
 
 function depthScale(y: string, active: boolean, mission: boolean, isolate: boolean) {
@@ -41,9 +37,6 @@ function routePath(x1: number, y1: number, x2: number, y2: number) {
 }
 
 export function CityStage({ selected, hovered, lit, quiet, trail, trailKind, onHover, onSelect }: CityStageProps) {
-  const heroRef = useRef<HTMLVideoElement>(null);
-  const botbaeRef = useRef<HTMLVideoElement>(null);
-  const parallaxRef = useRef<HTMLVideoElement>(null);
   const district = DISTRICTS.find((d) => d.id === selected) ?? null;
   const inspect = DISTRICTS.find((d) => d.id === hovered && d.id !== selected) ?? null;
   const construct = district?.id === "construct";
@@ -55,24 +48,6 @@ export function CityStage({ selected, hovered, lit, quiet, trail, trailKind, onH
   const gated = protocol && selected === "aegis";
   const poster = construct ? BOTBAE_POSTER : utility ? UTILITY_POSTER : parallax ? PX_POSTER : OVERVIEW_POSTER;
 
-  useEffect(() => {
-    const hero = heroRef.current;
-    const botbae = botbaeRef.current;
-    const px = parallaxRef.current;
-    if (hero) {
-      if (lit && !isolate) void hero.play().catch(() => undefined);
-      else hero.pause();
-    }
-    if (botbae) {
-      if (lit && construct) void botbae.play().catch(() => undefined);
-      else botbae.pause();
-    }
-    if (px) {
-      if (lit && parallax) void px.play().catch(() => undefined);
-      else px.pause();
-    }
-  }, [lit, construct, utility, parallax, isolate]);
-
   return (
     <div
       className={cn(
@@ -83,49 +58,12 @@ export function CityStage({ selected, hovered, lit, quiet, trail, trailKind, onH
       )}
       style={{ backgroundImage: `url(${poster})`, backgroundSize: "cover", backgroundPosition: "center" }}
     >
-      <video
-        ref={heroRef}
-        className={cn(
-          "absolute inset-0 h-full w-full object-cover object-[center_38%] transition-opacity duration-700",
-          isolate ? "opacity-0" : "opacity-100",
-        )}
-        src={OVERVIEW_SRC}
-        poster={OVERVIEW_POSTER}
-        muted
-        loop
-        playsInline
-        autoPlay
-        preload="auto"
+      <img
+        src={poster}
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover object-[center_38%]"
         aria-hidden
       />
-      {construct ? (
-        <video
-          ref={botbaeRef}
-          className="absolute inset-0 h-full w-full object-cover object-center"
-          src={BOTBAE_HERO}
-          poster={BOTBAE_POSTER}
-          muted
-          loop
-          playsInline
-          autoPlay
-          preload="metadata"
-          aria-hidden
-        />
-      ) : null}
-      {parallax ? (
-        <video
-          ref={parallaxRef}
-          className="absolute inset-0 h-full w-full object-cover object-center"
-          src={PX_SRC}
-          poster={PX_POSTER}
-          muted
-          loop
-          playsInline
-          autoPlay
-          preload="metadata"
-          aria-hidden
-        />
-      ) : null}
 
       <div className="city-atmosphere pointer-events-none absolute inset-0" />
       <CityField lit={lit && !utility} accent={construct ? "pink" : "cyan"} />

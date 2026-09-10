@@ -134,14 +134,10 @@ export function CityMap({ entered, onEnter, onExit, onOpenTab, onPlayFilm }: Cit
 
       <div className="relative overflow-hidden rounded-xl bg-obsidian-2 shadow-[var(--shadow-border)]">
         <div className="relative aspect-film w-full">
-          <video
+          <img
             className="absolute inset-0 h-full w-full object-cover"
-            src="/media/web/botbae-hero.mp4"
-            poster="/media/stills/botbae-hero.jpg"
-            muted
-            loop
-            playsInline
-            autoPlay
+            src="/media/stills/botbae-hero.jpg"
+            alt=""
           />
           <div className="pointer-events-none absolute inset-0 film-vignette" />
           <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between px-4 py-3">

@@ -3,7 +3,6 @@ import {
   CHAPTERS,
   FILM_DURATION,
   VO_END,
-  VO_SRC,
   captionAt,
   chapterAt,
   formatTimecode,
@@ -54,6 +53,9 @@ export const FilmPlayer = forwardRef<FilmHandle, FilmPlayerProps>(function FilmP
   const district = DISTRICT_BY_CHAPTER[chapter.id] ?? "AGENTROPOLIS";
   const progress = Math.min(1, time / FILM_DURATION);
 
+  const playingRef = useRef(false);
+  const clockRef = useRef(0);
+
   const syncLayer = useCallback((t: number) => {
     const next = shotAt(t);
     if (next.id === shotIdRef.current) return;
@@ -74,19 +76,35 @@ export const FilmPlayer = forwardRef<FilmHandle, FilmPlayerProps>(function FilmP
 
   useEffect(() => {
     let raf = 0;
-    const tick = () => {
+    let last = performance.now();
+    const tick = (now: number) => {
       const audio = audioRef.current;
-      if (audio) {
+      const hasAudio = Boolean(audio && audio.duration && !Number.isNaN(audio.duration) && audio.src);
+      if (hasAudio && audio && !audio.paused && !audio.ended) {
         const t = audio.currentTime;
+        clockRef.current = t;
         setTime(t);
-        const running = !audio.paused && !audio.ended;
-        setPlaying(running);
-        if (t >= FILM_DURATION - 0.05 || audio.ended) {
+        setPlaying(true);
+        playingRef.current = true;
+        if (t >= FILM_DURATION - 0.05) {
           setEnded(true);
           setPlaying(false);
+          playingRef.current = false;
         }
         syncLayer(t);
+      } else if (playingRef.current) {
+        const dt = (now - last) / 1000;
+        clockRef.current = Math.min(FILM_DURATION, clockRef.current + dt);
+        const t = clockRef.current;
+        setTime(t);
+        syncLayer(t);
+        if (t >= FILM_DURATION - 0.05) {
+          setEnded(true);
+          setPlaying(false);
+          playingRef.current = false;
+        }
       }
+      last = now;
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -95,21 +113,25 @@ export const FilmPlayer = forwardRef<FilmHandle, FilmPlayerProps>(function FilmP
 
   const play = useCallback(async () => {
     const audio = audioRef.current;
-    if (!audio) return;
     setStarted(true);
     setEnded(false);
-    if (audio.currentTime >= FILM_DURATION - 0.2) audio.currentTime = 0;
-    try {
-      await audio.play();
-      setPlaying(true);
-      syncLayer(audio.currentTime);
-    } catch {
-      setPlaying(false);
+    playingRef.current = true;
+    if (clockRef.current >= FILM_DURATION - 0.2) clockRef.current = 0;
+    if (audio && audio.src) {
+      if (audio.currentTime >= FILM_DURATION - 0.2) audio.currentTime = 0;
+      try {
+        await audio.play();
+      } catch {
+        /* quantized: no vo in production artifact — clock continues */
+      }
     }
+    setPlaying(true);
+    syncLayer(clockRef.current);
   }, [syncLayer]);
 
   const pause = useCallback(() => {
     audioRef.current?.pause();
+    playingRef.current = false;
     setPlaying(false);
   }, []);
 
@@ -120,10 +142,10 @@ export const FilmPlayer = forwardRef<FilmHandle, FilmPlayerProps>(function FilmP
 
   const seek = useCallback(
     (t: number) => {
-      const audio = audioRef.current;
-      if (!audio) return;
       const clamped = Math.max(0, Math.min(FILM_DURATION - 0.05, t));
-      audio.currentTime = clamped;
+      clockRef.current = clamped;
+      const audio = audioRef.current;
+      if (audio && audio.src) audio.currentTime = clamped;
       setTime(clamped);
       setEnded(clamped >= VO_END);
       shotIdRef.current = "";
@@ -198,10 +220,13 @@ export const FilmPlayer = forwardRef<FilmHandle, FilmPlayerProps>(function FilmP
       onMouseLeave={() => setHover(false)}
       onPointerDown={() => setHover(true)}
     >
-      <audio ref={audioRef} src={VO_SRC} preload="auto" muted={muted} />
+      <audio ref={audioRef} preload="none" muted={muted} />
       <img
-        src={layerA || "/media/stills/hermes-open.jpg"}
+        src={layerA || "/media/stills/octane/hero.jpg"}
         alt=""
+        onError={(e) => {
+          e.currentTarget.src = "/media/stills/octane/hero.jpg";
+        }}
         className={cn(
           "absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ease-out",
           front === "a" && shot.kind !== "black" ? "opacity-100" : "opacity-0",
@@ -209,8 +234,11 @@ export const FilmPlayer = forwardRef<FilmHandle, FilmPlayerProps>(function FilmP
         )}
       />
       <img
-        src={layerB || "/media/stills/hermes-open.jpg"}
+        src={layerB || "/media/stills/octane/hero.jpg"}
         alt=""
+        onError={(e) => {
+          e.currentTarget.src = "/media/stills/octane/hero.jpg";
+        }}
         className={cn(
           "absolute inset-0 h-full w-full object-cover transition-opacity duration-300 ease-out",
           front === "b" && shot.kind !== "black" ? "opacity-100" : "opacity-0",
