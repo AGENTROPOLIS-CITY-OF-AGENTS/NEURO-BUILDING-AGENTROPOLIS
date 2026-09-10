@@ -31,9 +31,9 @@ export type MsRegion = {
 export const MS_STORE = "agentropolis-main-street-v1";
 
 export const MS_MODES: { id: MsMode; label: string; note: string }[] = [
-  { id: "web2", label: "Web2", note: "Shop and walk like a normal street. No wallet talk." },
-  { id: "hybrid", label: "Hybrid", note: "Same street. A little of what runs underneath." },
-  { id: "web3", label: "Web3", note: "Ownership is available. Nothing is forced." },
+  { id: "web2", label: "Web2", note: "Shops. No wallet." },
+  { id: "hybrid", label: "Bridge", note: "Same street. Both rails." },
+  { id: "web3", label: "Web3", note: "Ownership available. Not forced." },
 ];
 
 export const MS_PLACES: { id: MsPlace; label: string; plain: string }[] = [
@@ -305,13 +305,13 @@ export function bumpPlace(current: MsPlace, next: MsPlace): MsPlace {
   return order.indexOf(next) > order.indexOf(current) ? next : current;
 }
 
-export const NAV_WELCOME = "Welcome to Main Street. I can show you around.";
-export const NAV_ROLE = "I am a guide. Guidance is not permission. I do not move money.";
-export const NAV_NO_WALLET = "You do not need a wallet yet.";
-export const NAV_APPROVE = "That action needs your approval first.";
-export const NAV_DENY = "I cannot do that on this floor.";
-export const NAV_LATER = "You can come back to this later.";
-export const NAV_RECEIPT = "This is your receipt. It shows what happened.";
+export const NAV_WELCOME = "Main Street. Web2 shops. Web3 across the bridge. I walk with you.";
+export const NAV_ROLE = "NEURO. Guide, not permission.";
+export const NAV_NO_WALLET = "No wallet yet.";
+export const NAV_APPROVE = "Needs your yes.";
+export const NAV_DENY = "Not on this floor.";
+export const NAV_LATER = "Later.";
+export const NAV_RECEIPT = "Receipt.";
 
 export const MS_LESSONS: Record<string, { title: string; body: string }> = {
   "lesson-street": {

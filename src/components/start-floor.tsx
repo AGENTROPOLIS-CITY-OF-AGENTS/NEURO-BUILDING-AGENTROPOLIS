@@ -1,4 +1,5 @@
 import { StartCta } from "@/components/start-cta";
+import { HubCard } from "@/components/grid-hub";
 import { FLOOR_MODES, type FloorMode } from "@/lib/journeys";
 import { cn } from "@/lib/utils";
 
@@ -44,6 +45,7 @@ export function StartHere({
   onBuild,
   onProtocol,
   onStreet,
+  onDistrict,
 }: {
   onGuide: () => void;
   onFilm: () => void;
@@ -51,7 +53,14 @@ export function StartHere({
   onBuild: () => void;
   onProtocol: () => void;
   onStreet: () => void;
+  onDistrict: (id: string) => void;
 }) {
+  const pick = (id: string) => {
+    if (id === "construct") onBuild();
+    else if (id === "street") onStreet();
+    else onDistrict(id);
+  };
+
   return (
     <div data-start className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
       <div className="hero-stage" aria-hidden>
@@ -59,42 +68,11 @@ export function StartHere({
           <img src="/media/stills/octane/hero.jpg" alt="" />
         </div>
         <div className="hero-vignette" />
-        <div className="hero-scan" />
       </div>
 
-      <p className="hero-rail hero-rail-left">
-        Real agents.
-        <br />
-        Real worlds.
-        <br />
-        No limits.
-      </p>
-      <p className="hero-rail hero-rail-right">
-        Agents
-        <br />
-        Infrastructure
-        <br />
-        Intelligence
-        <br />
-        Commerce
-        <br />
-        Culture
-        <span className="mt-6 block text-cyan">
-          One grid
-          <br />
-          Infinite possibilities.
-        </span>
-      </p>
-
-      <aside className="hero-board hero-board-left" aria-hidden>
-        <span>Agents are infrastructure</span>
-      </aside>
-      <aside className="hero-board hero-board-right" aria-hidden>
-        <span>Quantize compute · visuals · models · information together</span>
-      </aside>
-
-      <div className="pointer-events-auto absolute inset-x-0 top-[16%] z-10 md:top-[18%]">
+      <div className="pointer-events-auto absolute inset-x-0 top-[10%] z-10 flex flex-col items-center gap-4 px-3 md:top-[12%]">
         <StartCta onEnter={onCity} />
+        <HubCard onPick={pick} onCenter={onCity} />
       </div>
 
       <div className="sr-only">

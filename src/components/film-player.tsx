@@ -3,6 +3,7 @@ import {
   CHAPTERS,
   FILM_DURATION,
   VO_END,
+  VO_SRC,
   captionAt,
   chapterAt,
   formatTimecode,
@@ -117,17 +118,21 @@ export const FilmPlayer = forwardRef<FilmHandle, FilmPlayerProps>(function FilmP
     setEnded(false);
     playingRef.current = true;
     if (clockRef.current >= FILM_DURATION - 0.2) clockRef.current = 0;
-    if (audio && audio.src) {
+    if (audio) {
+      if (!audio.src || !audio.src.includes("vo.mp3")) audio.src = VO_SRC;
+      audio.muted = muted;
+      audio.volume = 1;
       if (audio.currentTime >= FILM_DURATION - 0.2) audio.currentTime = 0;
+      else audio.currentTime = clockRef.current;
       try {
         await audio.play();
       } catch {
-        /* quantized: no vo in production artifact — clock continues */
+        playingRef.current = true;
       }
     }
     setPlaying(true);
     syncLayer(clockRef.current);
-  }, [syncLayer]);
+  }, [syncLayer, muted]);
 
   const pause = useCallback(() => {
     audioRef.current?.pause();
@@ -220,7 +225,7 @@ export const FilmPlayer = forwardRef<FilmHandle, FilmPlayerProps>(function FilmP
       onMouseLeave={() => setHover(false)}
       onPointerDown={() => setHover(true)}
     >
-      <audio ref={audioRef} preload="none" muted={muted} />
+      <audio ref={audioRef} src={VO_SRC} preload="auto" muted={muted} playsInline />
       <img
         src={layerA || "/media/stills/octane/hero.jpg"}
         alt=""
@@ -344,6 +349,7 @@ export const FilmPlayer = forwardRef<FilmHandle, FilmPlayerProps>(function FilmP
           </button>
           <p className="hidden min-w-0 flex-1 truncate text-[10px] tracking-[0.14em] text-mute uppercase sm:block">
             {chapter.label}
+            <span className="ml-2 text-cyan">VO</span>
           </p>
           <button
             type="button"

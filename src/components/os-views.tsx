@@ -37,7 +37,11 @@ import {
   type Collective,
   type ViewId,
 } from "@/lib/grid";
-import { AgentNode, Corridor, DistrictCard, RuntimeChip } from "@/components/grid-chrome";
+import { AgentNode, Corridor, RuntimeChip } from "@/components/grid-chrome";
+import { Deck3 } from "@/components/deck-3d";
+import { ThresholdPortal } from "@/components/threshold-portal";
+import { GridHub } from "@/components/grid-hub";
+import { stillForDistrict } from "@/lib/stills";
 import { useCompute } from "@/lib/compute";
 import { INFO_CAPS, attentionFloor, infoDepthFor, rankAgents, take } from "@/lib/info";
 import { cn } from "@/lib/utils";
@@ -67,6 +71,11 @@ export function OsView({
       className="os-veil pointer-events-auto absolute inset-x-0 top-14 bottom-28 z-20 overflow-y-auto px-4 py-5 md:top-28 sm:px-6"
     >
       <div className="mx-auto max-w-6xl">
+        {view === "agents" || view === "build" || view === "mcp" ? (
+          <div className="hub-card mb-6">
+            <GridHub onPick={onDistrict} onCenter={() => onDistrict("hermes")} />
+          </div>
+        ) : null}
         {view === "agents" ? <AgentsView onDistrict={onDistrict} onPlayFilm={onPlayFilm} /> : null}
         {view === "collectives" ? <CollectivesView onDistrict={onDistrict} /> : null}
         {view === "districts" ? <DistrictsView onDistrict={onDistrict} /> : null}
@@ -160,38 +169,25 @@ function CollectivesView({ onDistrict }: { onDistrict: (id: string) => void }) {
   const [id, setId] = useState(COLLECTIVES[1]!.id);
   const col = COLLECTIVES.find((c) => c.id === id) ?? COLLECTIVES[0]!;
   const district = DISTRICTS.find((d) => d.id === col.districtId)!;
+  const cards = COLLECTIVES.map((c) => {
+    const d = DISTRICTS.find((x) => x.id === c.districtId)!;
+    return {
+      id: c.id,
+      title: d.name,
+      code: d.code,
+      still: stillForDistrict(d.id),
+      live: d.status === "LIVE",
+    };
+  });
   return (
     <div>
       <PaneHead
         kicker="Collectives"
         title="Governed coordination"
-        body="Every district has a collective. Agents discover peers, request help, divide work, delegate, continue. Collective talk never grants authority. Cross-district work routes through Dispatch Protocol."
+        body="Every district has a collective. Scroll the stack. Click a container to light it. Collective talk never grants authority."
       />
-      <div className="grid gap-6 lg:grid-cols-5">
-        <ul className="flex max-h-96 flex-col gap-1 overflow-y-auto lg:col-span-2">
-          {COLLECTIVES.map((c) => {
-            const d = DISTRICTS.find((x) => x.id === c.districtId)!;
-            return (
-              <li key={c.id}>
-                <button
-                  type="button"
-                  onClick={() => setId(c.id)}
-                  className={cn(
-                    "flex h-11 w-full items-center justify-between rounded-md px-3 text-left text-2xs font-medium tracking-[0.12em] shadow-[var(--shadow-border)]",
-                    id === c.id ? "text-cyan" : "text-mute hover:text-paper",
-                  )}
-                >
-                  <span>{d.name}</span>
-                  <span className="font-mono text-dim">{d.code}</span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-        <div className="lg:col-span-3">
-          <CollectiveBody col={col} districtName={district.name} onOpen={() => onDistrict(district.id)} />
-        </div>
-      </div>
+      <Deck3 items={cards} selected={id} onSelect={setId} />
+      <CollectiveBody col={col} districtName={district.name} still={stillForDistrict(district.id)} onOpen={() => onDistrict(district.id)} />
     </div>
   );
 }
@@ -199,28 +195,34 @@ function CollectivesView({ onDistrict }: { onDistrict: (id: string) => void }) {
 export function CollectiveBody({
   col,
   districtName,
+  still,
   onOpen,
 }: {
   col: Collective;
   districtName: string;
+  still?: string;
   onOpen?: () => void;
 }) {
   return (
-    <article className="rounded-lg bg-obsidian-2 p-5 shadow-[var(--shadow-border)]">
+    <article className="deck-slab p-5">
+      {still ? (
+        <div className="deck-thumb mb-4 h-36 overflow-hidden">
+          <img
+            src={still}
+            alt=""
+            className="h-full w-full object-cover"
+            onError={(e) => {
+              e.currentTarget.src = "/media/stills/octane/hero.jpg";
+            }}
+          />
+        </div>
+      ) : null}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="text-2xs tracking-[0.2em] text-cyan uppercase">{districtName}</p>
           <h2 className="mt-2 font-display text-lg font-semibold text-paper">District collective</h2>
         </div>
-        {onOpen ? (
-          <button
-            type="button"
-            onClick={onOpen}
-            className="h-11 rounded-md px-4 text-xs tracking-[0.14em] text-paper shadow-[var(--shadow-border)] transition-transform duration-150 ease-out hover:text-cyan active:scale-[0.96]"
-          >
-            Enter district
-          </button>
-        ) : null}
+        {onOpen ? <ThresholdPortal label="Enter" onClick={onOpen} /> : null}
       </div>
       <ol className="mt-5">
         <Corridor />
@@ -255,20 +257,33 @@ function DistrictsView({ onDistrict }: { onDistrict: (id: string) => void }) {
     return r(a.status) - r(b.status);
   });
   const list = take(ranked, Math.max(caps.agents * 2, 6));
+  const cards = list.map((d) => ({
+    id: d.id,
+    title: d.name,
+    code: d.code,
+    still: stillForDistrict(d.id),
+    live: d.status === "LIVE",
+  }));
+  const [id, setId] = useState(list[0]?.id ?? "hermes");
+  const current = list.find((d) => d.id === id) ?? list[0];
   return (
     <div>
       <PaneHead
         kicker="Districts"
         title="The grid, named"
-        body="Each district is a place with a mandate. Select to enter. LIVE is a verified Pages surface, a verified studio host, or a receipt-backed runtime. AVAILABLE means the repository exists. PLANNED is named, not connected."
+        body="Each district is a place with a mandate. Scroll the stack. Click a container to light it. LIVE is a verified Pages surface."
       />
-      <ul className="flex flex-col gap-1">
-        {list.map((d) => (
-          <li key={d.id}>
-            <DistrictCard district={d} onOpen={onDistrict} />
-          </li>
-        ))}
-      </ul>
+      <Deck3 items={cards} selected={id} onSelect={setId} />
+      {current ? (
+        <div className="deck-slab flex flex-wrap items-center justify-between gap-4 p-5">
+          <div>
+            <p className="text-2xs tracking-[0.2em] text-cyan uppercase">{current.code}</p>
+            <h2 className="mt-2 font-display text-lg font-semibold text-paper">{current.name}</h2>
+            <p className="mt-2 max-w-xl text-sm text-mute">{current.role}</p>
+          </div>
+          <ThresholdPortal label="Enter" onClick={() => onDistrict(current.id)} />
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import { QUANTIZE_LAW } from "@/lib/design-system";
 
 const LINES = [
   { text: "THE CITY IS THE", tone: "cyan" },
@@ -30,9 +29,6 @@ export function StartCta({
         ))}
       </h1>
       <p className="hero-sub">Explore · Build · Connect · Deploy</p>
-      <p data-quantize className="hero-quantize">
-        {QUANTIZE_LAW}
-      </p>
       <button type="button" data-start-enter className="sr-only" onClick={onEnter}>
         Enter the city
       </button>

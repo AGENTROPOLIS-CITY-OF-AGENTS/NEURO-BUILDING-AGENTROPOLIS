@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ComponentType } from "react";
-import { Play, Search, X } from "lucide-react";
+import { Play, Search, Volume2, VolumeX, X } from "lucide-react";
 import { CityStage } from "@/components/city-stage";
 import { type CityGfx } from "@/lib/gfx";
 import { useCompute } from "@/lib/compute";
@@ -42,6 +42,7 @@ import {
 import { CITY_RUNS, JOURNEY_TRAIL, PROTOCOL_TRAIL, stepIndexForDistrict, type FloorMode } from "@/lib/journeys";
 import { protocolIndexForDistrict, PROTOCOL_RUNS } from "@/lib/atg";
 import { cn } from "@/lib/utils";
+import { createLofiBed, type LofiBed } from "@/lib/lofi-bed";
 
 export function CityOS() {
   const [view, setView] = useState<ViewId>("city");
@@ -51,6 +52,7 @@ export function CityOS() {
   const [tick, setTick] = useState(0);
   const [filmSeek, setFilmSeek] = useState<number | null>(null);
   const [filmOpen, setFilmOpen] = useState(false);
+  const [ambientMuted, setAmbientMuted] = useState(false);
   const [filmAspect, setFilmAspect] = useState<"film" | "feed">("film");
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
@@ -108,6 +110,10 @@ export function CityOS() {
   }> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const filmRef = useRef<FilmHandle | null>(null);
+  const ambientRef = useRef<LofiBed | null>(null);
+  const filmOpenRef = useRef(false);
+  const mutedRef = useRef(false);
+  filmOpenRef.current = filmOpen;
 
   const depth = infoDepthFor(compute);
   const caps = INFO_CAPS[depth];
@@ -125,6 +131,33 @@ export function CityOS() {
       document.removeEventListener("visibilitychange", onVis);
     };
   }, [caps.tickerMs, attn.length]);
+
+  useEffect(() => {
+    const bed = createLofiBed();
+    ambientRef.current = bed;
+    const stored = window.localStorage.getItem("agentropolis-ambient") === "off";
+    setAmbientMuted(stored);
+    mutedRef.current = stored;
+    bed.setMuted(stored);
+    const kick = () => {
+      if (!filmOpenRef.current && !mutedRef.current) void bed.start();
+    };
+    window.addEventListener("pointerdown", kick, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", kick);
+      bed.dispose();
+      ambientRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    mutedRef.current = ambientMuted;
+    const bed = ambientRef.current;
+    if (!bed) return;
+    bed.setMuted(ambientMuted);
+    if (filmOpen || ambientMuted) bed.stop();
+    else void bed.start();
+  }, [filmOpen, ambientMuted]);
 
   useEffect(() => {
     if (compute === "minimum" || mode === "start") {
@@ -518,37 +551,7 @@ export function CityOS() {
               rel="noreferrer"
               className="inline-flex h-11 items-center rounded-md bg-cyan px-4 text-2xs font-medium tracking-[0.16em] text-obsidian"
             >
-              OPEN HERMES CITY
-            </a>
-          ) : null}
-          {cityInside === "hermes" ? (
-            <a
-              href="https://github.com/AGENTROPOLIS-CITY-OF-AGENTS/HERMES-CITY"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-11 items-center rounded-md bg-obsidian/70 px-4 text-2xs font-medium tracking-[0.16em] text-cyan shadow-[var(--shadow-border)]"
-            >
-              HERMES-CITY REPO
-            </a>
-          ) : null}
-          {cityInside === "hermes" ? (
-            <a
-              href="https://github.com/AGENTROPOLIS-CITY-OF-AGENTS/HERMES-CITY-SOCIAL"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-11 items-center rounded-md bg-obsidian/70 px-4 text-2xs font-medium tracking-[0.16em] text-cyan shadow-[var(--shadow-border)]"
-            >
-              HERMES-CITY-SOCIAL
-            </a>
-          ) : null}
-          {cityInside === "hermes" || cityInside === "dock" ? (
-            <a
-              href="https://github.com/AGENTROPOLIS-CITY-OF-AGENTS/AGENTROPOLIS-DOCK"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-11 items-center rounded-md bg-obsidian/70 px-4 text-2xs font-medium tracking-[0.16em] text-cyan shadow-[var(--shadow-border)]"
-            >
-              AGENTROPOLIS-DOCK
+              OPEN LIVE
             </a>
           ) : null}
           <button
@@ -565,7 +568,7 @@ export function CityOS() {
       ) : null}
 
       {view === "city" && mode === "city" && !selected && !filmOpen ? (
-        <div className="absolute bottom-28 left-4 z-20 flex flex-wrap gap-2 sm:left-6">
+        <div className="absolute bottom-28 left-4 z-20 sm:left-6">
           <button
             type="button"
             data-film
@@ -574,79 +577,6 @@ export function CityOS() {
           >
             <Play className="size-3.5" fill="currentColor" />
             PLAY FILM
-          </button>
-          <button
-            type="button"
-            data-tour="tour"
-            onClick={() => startJourney(0)}
-            className="h-11 rounded-md bg-obsidian/55 px-4 text-2xs font-medium tracking-[0.16em] text-paper shadow-[var(--shadow-border)] backdrop-blur-sm transition-transform duration-150 ease-out hover:text-cyan active:scale-[0.96]"
-          >
-            TAKE A TOUR
-          </button>
-          <button
-            type="button"
-            data-tour="protocol"
-            onClick={() => startProtocol(0)}
-            className="h-11 rounded-md bg-obsidian/55 px-4 text-2xs font-medium tracking-[0.16em] text-cyan shadow-[var(--shadow-border)] backdrop-blur-sm transition-transform duration-150 ease-out hover:text-paper active:scale-[0.96]"
-          >
-            INSPECT THE PROTOCOL
-          </button>
-          <button
-            type="button"
-            data-tour="build"
-            onClick={() => openDistrict("construct")}
-            className="h-11 rounded-md bg-obsidian/55 px-4 text-2xs font-medium tracking-[0.16em] text-paper shadow-[var(--shadow-border)] backdrop-blur-sm transition-transform duration-150 ease-out hover:text-cyan active:scale-[0.96]"
-          >
-            START BUILDING
-          </button>
-          <button
-            type="button"
-            data-tour="botbae"
-            onClick={() => openDistrict("construct")}
-            className="h-11 rounded-md bg-obsidian/55 px-4 text-2xs font-medium tracking-[0.16em] text-pink shadow-[var(--shadow-border)] backdrop-blur-sm transition-transform duration-150 ease-out hover:text-lilac active:scale-[0.96]"
-          >
-            SEE BOTBAE WORK
-          </button>
-          <button
-            type="button"
-            data-tour="utility"
-            onClick={() => openDistrict("utility")}
-            className="inline-flex h-11 items-center gap-2 rounded-md bg-obsidian/55 px-3 text-2xs font-medium tracking-[0.16em] text-red shadow-[var(--shadow-border)] backdrop-blur-sm transition-transform duration-150 ease-out hover:text-paper active:scale-[0.96]"
-          >
-            <img src="/media/stills/origin-engine-mark.jpg?v=3" alt="" className="origin-engine-lockup h-6 w-auto object-contain" />
-            ORIGIN ENGINE
-          </button>
-          <button
-            type="button"
-            data-tour="parallax"
-            onClick={() => openDistrict("parallax")}
-            className="h-11 rounded-md bg-obsidian/55 px-4 text-2xs font-medium tracking-[0.16em] text-cyan shadow-[var(--shadow-border)] backdrop-blur-sm transition-transform duration-150 ease-out hover:text-paper active:scale-[0.96]"
-          >
-            PARALLAX
-          </button>
-          <button
-            type="button"
-            data-tour="fang"
-            onClick={() => openDistrict("fm")}
-            className="h-11 rounded-md bg-obsidian/55 px-4 text-2xs font-medium tracking-[0.16em] text-paper shadow-[var(--shadow-border)] backdrop-blur-sm transition-transform duration-150 ease-out hover:text-cyan active:scale-[0.96]"
-          >
-            33.3 FM
-          </button>
-          <button
-            type="button"
-            data-tour="street"
-            onClick={() => openDistrict("street")}
-            className="h-11 rounded-md bg-obsidian/55 px-4 text-2xs font-medium tracking-[0.16em] text-cyan shadow-[var(--shadow-border)] backdrop-blur-sm transition-transform duration-150 ease-out hover:text-paper active:scale-[0.96]"
-          >
-            MAIN STREET
-          </button>
-          <button
-            type="button"
-            data-tour="holofoil"
-            onClick={() => openDistrict("holofoil")}
-            className="h-11 rounded-md bg-obsidian/55 px-4 text-2xs font-medium tracking-[0.16em] text-cyan shadow-[var(--shadow-border)] backdrop-blur-sm transition-transform duration-150 ease-out hover:text-paper active:scale-[0.96]"
-          >
-            HOLOFOIL
           </button>
         </div>
       ) : null}
@@ -659,6 +589,7 @@ export function CityOS() {
           onBuild={() => openDistrict("construct")}
           onProtocol={() => startProtocol(0)}
           onStreet={() => openDistrict("street")}
+          onDistrict={openDistrict}
         />
       ) : null}
 
@@ -780,8 +711,24 @@ export function CityOS() {
             >
               .dev
             </a>
-            <StudioRail />
+            {mode !== "start" ? <StudioRail /> : null}
             <ComputeDock value={compute} onChange={setCompute} />
+            <button
+              type="button"
+              data-ambient
+              onClick={() => {
+                setAmbientMuted((v) => {
+                  const next = !v;
+                  window.localStorage.setItem("agentropolis-ambient", next ? "off" : "on");
+                  return next;
+                });
+              }}
+              className="inline-flex size-11 items-center justify-center rounded-md text-cyan shadow-[var(--shadow-border)] transition-transform duration-150 ease-out hover:text-red active:scale-[0.96]"
+              aria-label={ambientMuted ? "Unmute ambient" : "Mute ambient"}
+              title={ambientMuted ? "Ambient off" : "Ambient on"}
+            >
+              {ambientMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+            </button>
             <button
               type="button"
               data-film-header

@@ -2,8 +2,11 @@ import { useEffect, useMemo, useRef, type ComponentRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, OrbitControls, RoundedBox } from "@react-three/drei";
 import * as THREE from "three";
-import { MS_REGIONS, MS_STATION, type MsRegion, type MsRegionId } from "@/lib/main-street";
+import { MS_REGIONS, MS_STATION, type MsMode, type MsRegion, type MsRegionId } from "@/lib/main-street";
 import type { MsGfx } from "@/lib/gfx";
+import { Elevator } from "@/components/elevator";
+import { CineLights } from "@/components/cine-lights";
+import { cineRig } from "@/lib/cine";
 
 export type { MsGfx };
 
@@ -12,6 +15,7 @@ type WorldProps = {
   inside: MsRegionId | null;
   highlight: MsRegionId | null;
   gfx: MsGfx;
+  mode?: MsMode;
   onFocus: (id: MsRegionId) => void;
   onEnter: (id: MsRegionId) => void;
 };
@@ -23,20 +27,21 @@ function region(id: string | null) {
   return MS_REGIONS.find((r) => r.id === id) ?? null;
 }
 
-export function MainStreetWorld({ focus, inside, highlight, gfx, onFocus, onEnter }: WorldProps) {
+export function MainStreetWorld({ focus, inside, highlight, gfx, mode = "web2", onFocus, onEnter }: WorldProps) {
   const busy = gfx === "high";
+  const rig = cineRig("street", gfx, Boolean(inside));
 
   return (
     <Canvas
       camera={{ position: HOME, fov: 42, near: 0.08, far: 180 }}
       dpr={gfx === "low" ? [1, 1.05] : [1, 1.5]}
-      flat
       gl={{
         antialias: gfx !== "low",
         alpha: true,
         preserveDrawingBuffer: true,
         powerPreference: gfx === "low" ? "low-power" : "high-performance",
-        toneMapping: THREE.NoToneMapping,
+        toneMapping: THREE.ACESFilmicToneMapping,
+        toneMappingExposure: rig.exposure,
       }}
       resize={{ offsetSize: true, scroll: false }}
       onCreated={({ gl }) => {
@@ -48,15 +53,13 @@ export function MainStreetWorld({ focus, inside, highlight, gfx, onFocus, onEnte
       className="h-full w-full bg-transparent"
       style={{ touchAction: "none", background: "transparent" }}
     >
-      <hemisphereLight args={["#d8f6ff", "#05080c", inside ? 0.7 : 0.92]} />
-      <ambientLight intensity={inside ? 0.62 : 0.55} />
-      <directionalLight position={[12, 18, 8]} intensity={inside ? 0.9 : 1.15} color="#ffffff" />
-      <pointLight position={[0, 4.2, 0]} intensity={1.1} color="#00ffff" distance={28} />
+      <CineLights stage="street" gfx={gfx} inside={Boolean(inside)} />
       {inside ? (
         <Interior id={inside} />
       ) : (
         <>
           <Boulevard />
+          <Bridge mode={mode} />
           <Station />
           {MS_REGIONS.map((r) => (
             <Building
@@ -115,6 +118,45 @@ function Boulevard() {
         <cylinderGeometry args={[0.55, 1.15, 1.6, 16]} />
         <meshLambertMaterial color="#101820" emissive="#00ffff" emissiveIntensity={0.18} toneMapped={false} />
       </mesh>
+    </group>
+  );
+}
+
+function Bridge({ mode }: { mode: MsMode }) {
+  const left = mode === "web3" ? 0.18 : 0.55;
+  const right = mode === "web2" ? 0.18 : 0.7;
+  return (
+    <group position={[24, 0, 0]}>
+      <mesh position={[-6.4, 0.08, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[12.4, 6.4]} />
+        <meshBasicMaterial color="#19E6E6" transparent opacity={0.08} />
+      </mesh>
+      <mesh position={[6.4, 0.08, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[12.4, 6.4]} />
+        <meshBasicMaterial color="#FF2A2A" transparent opacity={0.08} />
+      </mesh>
+      <RoundedBox args={[0.45, 5.6, 0.45]} radius={0.05} position={[-3.2, 2.8, -3.1]}>
+        <meshLambertMaterial color="#101820" emissive="#19E6E6" emissiveIntensity={left} toneMapped={false} />
+      </RoundedBox>
+      <RoundedBox args={[0.45, 5.6, 0.45]} radius={0.05} position={[-3.2, 2.8, 3.1]}>
+        <meshLambertMaterial color="#101820" emissive="#19E6E6" emissiveIntensity={left} toneMapped={false} />
+      </RoundedBox>
+      <RoundedBox args={[0.45, 5.6, 0.45]} radius={0.05} position={[3.2, 2.8, -3.1]}>
+        <meshLambertMaterial color="#101820" emissive="#FF2A2A" emissiveIntensity={right} toneMapped={false} />
+      </RoundedBox>
+      <RoundedBox args={[0.45, 5.6, 0.45]} radius={0.05} position={[3.2, 2.8, 3.1]}>
+        <meshLambertMaterial color="#101820" emissive="#FF2A2A" emissiveIntensity={right} toneMapped={false} />
+      </RoundedBox>
+      <mesh position={[0, 5.6, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <torusGeometry args={[3.4, 0.12, 8, 32, Math.PI]} />
+        <meshBasicMaterial color={mode === "web3" ? "#FF2A2A" : "#19E6E6"} />
+      </mesh>
+      <Html position={[-3.6, 6.4, 0]} center distanceFactor={24} style={{ pointerEvents: "none" }}>
+        <div className="ms-chip">WEB2</div>
+      </Html>
+      <Html position={[3.6, 6.4, 0]} center distanceFactor={24} style={{ pointerEvents: "none" }}>
+        <div className="ms-chip">WEB3</div>
+      </Html>
     </group>
   );
 }
@@ -224,17 +266,12 @@ function GuideMarker({ focus, highlight }: { focus: MsRegionId | null; highlight
   return (
     <group ref={ref} position={[1.8, 0, 2.6]}>
       <group>
-        <mesh position={[0, 1.55, 0]}>
-          <sphereGeometry args={[0.28, 14, 14]} />
-          <meshLambertMaterial color="#d8f6ff" emissive="#00ffff" emissiveIntensity={0.22} toneMapped={false} />
-        </mesh>
-        <mesh position={[0, 0.85, 0]}>
-          <capsuleGeometry args={[0.22, 0.7, 6, 10]} />
-          <meshLambertMaterial color="#0a2a32" emissive="#00ffff" emissiveIntensity={0.18} toneMapped={false} />
-        </mesh>
+        <Html position={[0, 1.7, 0]} center distanceFactor={10} style={{ pointerEvents: "none" }}>
+          <img className="ms-avatar" src="/media/stills/hood.jpg" alt="" />
+        </Html>
         <mesh position={[0, 0.18, 0]}>
           <cylinderGeometry args={[0.34, 0.38, 0.12, 12]} />
-          <meshBasicMaterial color="#00ffff" transparent opacity={0.45} />
+          <meshBasicMaterial color="#19E6E6" transparent opacity={0.45} />
         </mesh>
       </group>
     </group>
@@ -298,6 +335,7 @@ function Building({
         }}
       >
         <Volume region={r} w={w} h={h} d={d} emissive={emissive} />
+        <Elevator active={active} glow={r.color} onEnter={() => onEnter(r.id)} facadeZ={d / 2} />
       </group>
       <Html position={[0, h + 0.7, 0]} center distanceFactor={26} zIndexRange={[20, 0]} style={{ pointerEvents: "none" }}>
         <div className="ms-chip">
@@ -305,11 +343,6 @@ function Building({
           {r.name}
         </div>
       </Html>
-      {active ? (
-        <Html position={[0, 1.15, d / 2 + 0.4]} center distanceFactor={18} zIndexRange={[22, 0]} style={{ pointerEvents: "none" }}>
-          <div className="ms-chip ms-chip-hot">Enter</div>
-        </Html>
-      ) : null}
     </group>
   );
 }
@@ -490,8 +523,7 @@ function Interior({ id }: { id: MsRegionId }) {
         <meshLambertMaterial color="#0a1016" toneMapped={false} />
       </mesh>
       <InteriorSet id={id} accent={accent} />
-      <pointLight position={[0, 2.6, 0]} intensity={1.5} color={accent} distance={16} />
-      <pointLight position={[2.4, 2.2, 2]} intensity={0.55} color="#ffffff" distance={10} />
+      <pointLight position={[0, 2.4, 0]} intensity={0.7} color={accent} distance={10} decay={2} />
       <Html position={[0, 2.2, -1.4]} center distanceFactor={8} zIndexRange={[12, 0]} style={{ pointerEvents: "none" }}>
         <div className="ms-html">
           <p className="ms-html-kicker">You are here</p>

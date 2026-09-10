@@ -4,6 +4,10 @@ import { Html, OrbitControls, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { DISTRICTS, type District } from "@/lib/grid";
 import type { CityGfx } from "@/lib/gfx";
+import { Elevator } from "@/components/elevator";
+import { ThresholdPortal } from "@/components/threshold-portal";
+import { CineLights } from "@/components/cine-lights";
+import { CINE, cineRig } from "@/lib/cine";
 
 export type { CityGfx };
 
@@ -128,6 +132,7 @@ function FacadeMaterial({ glow = "#9cefff", amp = 1 }: { glow?: string; amp?: nu
 
 export function CityWorld({ selected, inside, gfx, onSelect, onEnter }: Props) {
   const fill = gfx === "high" ? 220 : gfx === "medium" ? 110 : 48;
+  const rig = cineRig("city", gfx, Boolean(inside));
 
   return (
     <Canvas
@@ -139,26 +144,20 @@ export function CityWorld({ selected, inside, gfx, onSelect, onEnter }: Props) {
         alpha: false,
         powerPreference: gfx === "low" ? "low-power" : "high-performance",
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1.05,
+        toneMappingExposure: rig.exposure,
       }}
       resize={{ offsetSize: true, scroll: false }}
       onCreated={({ gl, scene }) => {
-        gl.setClearColor("#05070A", 1);
-        scene.fog = new THREE.Fog("#05070A", 48, 140);
+        gl.setClearColor(CINE.clear, 1);
+        scene.fog = new THREE.Fog(CINE.fog, 22, 110);
       }}
       onPointerMissed={() => {
         if (!inside) onSelect(null);
       }}
       className="h-full w-full"
-      style={{ touchAction: "none", background: "#04060a" }}
+      style={{ touchAction: "none", background: CINE.clear }}
     >
-      <fog attach="fog" args={["#071018", 48, 140]} />
-      <hemisphereLight args={["#9ed8ff", "#0a1018", 0.85]} />
-      <ambientLight intensity={0.42} />
-      <directionalLight position={[-8, 28, 10]} intensity={0.85} color="#d7f0ff" />
-      <pointLight position={[0, 5, 0]} intensity={2.8} color="#22e8ff" distance={34} />
-      <pointLight position={[0, 6, -18]} intensity={2.6} color="#22e8ff" distance={40} />
-      <pointLight position={[-7, 4, 6]} intensity={1.4} color="#ff2a4a" distance={22} />
+      <CineLights stage="city" gfx={gfx} inside={Boolean(inside)} />
       <Suspense fallback={null}>
         <SkyAndStreet />
         <Avenue />
@@ -207,7 +206,7 @@ function SkyAndStreet() {
       </mesh>
       <mesh position={[0, 18, -48]} rotation={[0, 0, 0]}>
         <planeGeometry args={[110, 42]} />
-        <meshBasicMaterial map={hero} transparent opacity={0.42} depthWrite={false} />
+        <meshBasicMaterial map={hero} transparent opacity={0.22} depthWrite={false} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
         <planeGeometry args={[160, 160]} />
@@ -384,28 +383,12 @@ function Hero({
           <cylinderGeometry args={[0.05, 0.05, 1.4, 6]} />
           <meshBasicMaterial color={glow} />
         </mesh>
-        <mesh position={[0, 1.05, depth / 2 + 0.04]}>
-          <boxGeometry args={[0.86, 1.85, 0.08]} />
-          <meshStandardMaterial
-            color="#05080c"
-            emissive="#22e8ff"
-            emissiveIntensity={0.7}
-            metalness={0.4}
-            roughness={0.22}
-          />
-        </mesh>
         <mesh position={[0, h * 0.62, depth / 2 + 0.03]}>
           <boxGeometry args={[w * 0.92, 0.12, 0.06]} />
           <meshBasicMaterial color={glow} />
         </mesh>
+        <Elevator active={active} glow={glow} onEnter={() => onEnter(district.id)} facadeZ={depth / 2} />
       </group>
-      {active ? (
-        <Html position={[0, 2.2, depth / 2 + 0.9]} center distanceFactor={16} zIndexRange={[30, 0]}>
-          <button type="button" className="city-enter" onClick={() => onEnter(district.id)}>
-            ENTER THIS BUILDING
-          </button>
-        </Html>
-      ) : null}
       {active ? (
         <Html position={[0, h + 1.8, 0]} center distanceFactor={22} zIndexRange={[18, 0]} style={{ pointerEvents: "none" }}>
           <div className="city-pin">
@@ -499,14 +482,8 @@ function Interior({ id, onLeave }: { id: string; onLeave: () => void }) {
           <p>{d?.name ?? "AGENTROPOLIS"}</p>
           <span>{live ? "LIVE LAYER" : (d?.role ?? "")}</span>
           <div className="city-live-actions">
-            {live ? (
-              <a className="city-enter" href={live.page} target="_blank" rel="noreferrer">
-                OPEN LIVE PAGE
-              </a>
-            ) : null}
-            <button type="button" className="city-leave" onClick={onLeave}>
-              LEAVE ROOM
-            </button>
+            {live ? <ThresholdPortal label="Open" href={live.page} /> : null}
+            <ThresholdPortal label="Leave" onClick={onLeave} />
           </div>
           {live?.repos.length ? (
             <div className="city-git-row">
@@ -531,9 +508,8 @@ function Interior({ id, onLeave }: { id: string; onLeave: () => void }) {
         <boxGeometry args={[1.1, 0.08, 1.1]} />
         <meshBasicMaterial color="#22e8ff" />
       </mesh>
-      <pointLight position={[0, 3.2, 0.6]} color={glow} intensity={4.2} distance={16} />
-      <pointLight position={[0, 2.6, 2.4]} color="#22e8ff" intensity={2.2} distance={10} />
-      <pointLight position={[0, 2.4, -2.8]} color={glow} intensity={2.6} distance={12} />
+      <pointLight position={[0, 2.8, 0.4]} color={glow} intensity={1.15} distance={10} decay={2} />
+      <pointLight position={[0, 2.1, 2.1]} color="#19E6E6" intensity={0.55} distance={8} decay={2} />
     </group>
   );
 }

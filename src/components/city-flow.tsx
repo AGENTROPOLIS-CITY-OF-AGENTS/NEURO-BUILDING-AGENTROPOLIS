@@ -16,6 +16,7 @@ import {
   type FloorMode,
 } from "@/lib/journeys";
 import { cn } from "@/lib/utils";
+import { ThresholdPortal } from "@/components/threshold-portal";
 
 export { FloorDock, StartHere } from "@/components/start-floor";
 
@@ -116,13 +117,7 @@ export function GuidedTour({
               {last ? "City view" : "Next"}
               {last ? null : <ChevronRight className="size-3.5" />}
             </button>
-            <button
-              type="button"
-              onClick={() => onEnter(current.districtId)}
-              className="h-11 rounded-md px-4 text-2xs tracking-[0.14em] text-paper shadow-[var(--shadow-border)] hover:text-cyan"
-            >
-              Enter this building
-            </button>
+            <ThresholdPortal label="Enter" onClick={() => onEnter(current.districtId)} />
             <button
               type="button"
               onClick={() => onFilm(current.chapterId)}
@@ -260,13 +255,7 @@ export function ProtocolTour({
               {last ? "City view" : "Next hop"}
               {last ? null : <ChevronRight className="size-3.5" />}
             </button>
-            <button
-              type="button"
-              onClick={() => onEnter(current.districtId)}
-              className="h-11 rounded-md px-4 text-2xs tracking-[0.14em] text-paper shadow-[var(--shadow-border)] hover:text-cyan"
-            >
-              Enter this building
-            </button>
+            <ThresholdPortal label="Enter" onClick={() => onEnter(current.districtId)} />
             {current.districtId === "jspace" ? (
               <button
                 type="button"

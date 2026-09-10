@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import type { GfxTier } from "@/lib/gfx";
 import { useCompute } from "@/lib/compute";
 import { weightForGfx } from "@/lib/gfx";
+import { ThresholdPortal } from "@/components/threshold-portal";
 
 type WorldProps = {
   focus: string | null;
@@ -524,14 +525,7 @@ export function UtilityCampus({
 
         {building && !inside ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-28 z-20 flex justify-center px-3 md:bottom-8">
-            <button
-              type="button"
-              data-enter-building
-              onClick={() => enter(building.id)}
-              className="pointer-events-auto h-12 rounded-full bg-cyan px-6 text-xs font-medium tracking-[0.16em] text-obsidian uppercase shadow-[var(--shadow-border)]"
-            >
-              Enter this building
-            </button>
+            <ThresholdPortal label="Enter" onClick={() => enter(building.id)} className="pointer-events-auto" data-enter-building="" />
           </div>
         ) : null}
 

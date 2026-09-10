@@ -4,6 +4,9 @@ import { Html, OrbitControls, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { HOLOFOIL_BUILDINGS } from "@/lib/destinations";
 import type { CityGfx } from "@/lib/gfx";
+import { Elevator } from "@/components/elevator";
+import { CineLights } from "@/components/cine-lights";
+import { CINE, cineRig } from "@/lib/cine";
 
 type Props = {
   focus: string | null;
@@ -77,6 +80,7 @@ function WindowMaterial({ glow = "#9cefff", amp = 1 }: { glow?: string; amp?: nu
 }
 
 export function HolofoilWorld({ focus, inside, gfx, onFocus, onEnter }: Props) {
+  const rig = cineRig("foil", gfx, Boolean(inside));
   return (
     <Canvas
       camera={{ position: HOME, fov: 50, near: 0.12, far: 140 }}
@@ -86,20 +90,19 @@ export function HolofoilWorld({ focus, inside, gfx, onFocus, onEnter }: Props) {
         alpha: false,
         powerPreference: gfx === "low" ? "low-power" : "high-performance",
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1.08,
+        toneMappingExposure: rig.exposure,
       }}
       resize={{ offsetSize: true, scroll: false }}
+      onCreated={({ gl }) => {
+        gl.setClearColor(CINE.clear, 1);
+      }}
       onPointerMissed={() => {
         if (!inside) onFocus(null);
       }}
       className="h-full w-full"
-      style={{ touchAction: "none", background: "#05040a" }}
+      style={{ touchAction: "none", background: CINE.clear }}
     >
-      <fog attach="fog" args={["#07060c", 18, 80]} />
-      <hemisphereLight args={["#ffb8e8", "#08060c", 0.5]} />
-      <ambientLight intensity={0.26} />
-      <pointLight position={[0, 6, 0]} intensity={2.6} color="#22e8ff" distance={30} />
-      <pointLight position={[6, 5, -8]} intensity={1.4} color="#ff2a4a" distance={22} />
+      <CineLights stage="foil" gfx={gfx} inside={Boolean(inside)} />
       <Suspense fallback={null}>
         <Ground />
         {inside ? (
@@ -214,18 +217,8 @@ function Tower({
           <boxGeometry args={[b.w * 0.72, 0.36, b.depth * 0.72]} />
           <meshStandardMaterial color="#0c0a10" metalness={0.9} roughness={0.2} emissive={b.glow} emissiveIntensity={0.85} />
         </mesh>
-        <mesh position={[0, 1.0, b.depth / 2 + 0.04]}>
-          <boxGeometry args={[0.8, 1.7, 0.08]} />
-          <meshStandardMaterial color="#05060a" emissive="#22e8ff" emissiveIntensity={0.65} />
-        </mesh>
+        <Elevator active={active} glow={b.glow} onEnter={() => onEnter(b.id)} facadeZ={b.depth / 2} />
       </group>
-      {active ? (
-        <Html position={[0, 2.1, b.depth / 2 + 0.9]} center distanceFactor={16} zIndexRange={[30, 0]}>
-          <button type="button" className="city-enter" onClick={() => onEnter(b.id)}>
-            ENTER THIS BUILDING
-          </button>
-        </Html>
-      ) : null}
       {active ? (
         <Html position={[0, b.h + 1.4, 0]} center distanceFactor={22} zIndexRange={[18, 0]} style={{ pointerEvents: "none" }}>
           <div className="city-pin">
@@ -312,7 +305,7 @@ function Room({ id }: { id: string }) {
       <Operator position={[-1.7, 0, 0.5]} hue={b.glow} />
       <Operator position={[1.6, 0, 0.3]} hue="#22e8ff" />
       <Operator position={[0.2, 0, 1.7]} hue="#ff2a4a" />
-      <pointLight position={[0, 3.1, 0]} color={b.glow} intensity={2.4} distance={14} />
+      <pointLight position={[0, 2.6, 0]} color={b.glow} intensity={0.95} distance={10} decay={2} />
     </group>
   );
 }

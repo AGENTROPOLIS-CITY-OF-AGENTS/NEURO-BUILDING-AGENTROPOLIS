@@ -4,6 +4,8 @@ import { Html, OrbitControls, RoundedBox, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { BUILDING_META, CAMPUS_AGENTS, UTILITY_BUILDINGS, UTILITY_LINKS } from "@/lib/destinations";
 import type { GfxTier } from "@/lib/gfx";
+import { CineLights } from "@/components/cine-lights";
+import { cineRig } from "@/lib/cine";
 
 export type { GfxTier };
 
@@ -26,6 +28,7 @@ function byId(id: string) {
 
 export function CampusWorld({ focus, inside, gfx, paused, onFocus, onEnter, onAgent }: CampusWorldProps) {
   const showAgents = gfx !== "low";
+  const rig = cineRig("campus", gfx, Boolean(inside));
 
   return (
     <Canvas
@@ -35,9 +38,9 @@ export function CampusWorld({ focus, inside, gfx, paused, onFocus, onEnter, onAg
         antialias: gfx !== "low",
         alpha: true,
         preserveDrawingBuffer: true,
-        powerPreference: "high-performance",
+        powerPreference: gfx === "low" ? "low-power" : "high-performance",
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 0.95,
+        toneMappingExposure: rig.exposure,
       }}
       resize={{ offsetSize: true, scroll: false }}
       onCreated={({ gl }) => {
@@ -49,10 +52,7 @@ export function CampusWorld({ focus, inside, gfx, paused, onFocus, onEnter, onAg
       className="h-full w-full bg-transparent"
       style={{ touchAction: "none", background: "transparent" }}
     >
-      <hemisphereLight args={["#e8eef6", "#10141c", inside ? 0.85 : 1.02]} />
-      <ambientLight intensity={inside ? 0.72 : 0.78} />
-      <directionalLight position={[8, 16, 10]} intensity={inside ? 1.1 : 1.28} color="#ffffff" />
-      <directionalLight position={[-10, 6, -4]} intensity={0.28} color="#c9b6ff" />
+      <CineLights stage="campus" gfx={gfx} inside={Boolean(inside)} />
       {inside ? (
         <Interior id={inside} gfx={gfx} paused={paused} />
       ) : (
@@ -436,10 +436,8 @@ function Interior({ id, gfx, paused }: { id: string; gfx: GfxTier; paused: boole
         <boxGeometry args={[gap, 2.6, 0.08]} />
         <meshBasicMaterial color={trim} transparent opacity={0.22} toneMapped={false} />
       </mesh>
-      <ambientLight intensity={0.7} />
-      <pointLight position={[0, 2.7, 0]} intensity={2.8} color="#f2efe6" distance={16} />
-      <pointLight position={[0, 2.1, d / 2 - 1.2]} intensity={1.6} color="#22e8ff" distance={10} />
-      <pointLight position={[0, 2.2, -d / 2 + 1]} intensity={1.8} color={trim} distance={10} />
+      <pointLight position={[0, 2.5, 0]} intensity={1.05} color="#e8f4f4" distance={12} decay={2} />
+      <pointLight position={[0, 2.0, d / 2 - 1.2]} intensity={0.55} color="#19E6E6" distance={8} decay={2} />
       <RoomFit id={id} w={w} d={d} color={trim} />
       {id === "botbae" ? (
         <Suspense fallback={null}>

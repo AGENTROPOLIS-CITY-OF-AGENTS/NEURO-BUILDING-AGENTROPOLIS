@@ -330,6 +330,15 @@ export const DESTINATIONS: Destination[] = [
 		note: "Public 3D onboarding district. Working build. No live wallet, jobs, or balances on this floor."
 	},
 	{
+		id: "neuro-repo",
+		label: "NEURO",
+		districtId: "street",
+		repo: `${GH}/AGENTROPOLIS-NEURO`,
+		kind: "repo",
+		status: "AVAILABLE",
+		note: "Canonical NEURO intelligence utility. Avatar on Main Street. Knowledge is not permission. Conversation is not authority."
+	},
+	{
 		id: "creator-pages",
 		label: "CREATOR",
 		districtId: "construct",

@@ -281,14 +281,14 @@ export const DISTRICTS: District[] = [
 		y: "34%",
 		scene: "/media/web/origin-ios.mp4",
 		poster: "/media/stills/origin-ios.jpg",
-		agents: ["guide-1", "dock-3"],
+		agents: ["neuro-avatar", "guide-1", "dock-3"],
 		mcps: ["agent-mcp"],
 		skills: [
 			"Show me",
 			"Take me there",
 			"Explain"
 		],
-		apps: ["AGENTROPOLIS-MAIN-STREET"],
+		apps: ["AGENTROPOLIS-MAIN-STREET", "AGENTROPOLIS-NEURO"],
 		repo: "AGENTROPOLIS-CITY-OF-AGENTS/AGENTROPOLIS-MAIN-STREET",
 		activity: ["Navigator on duty. No wallet at the door.", "Eight regions. One next step at a time."]
 	},
@@ -713,6 +713,16 @@ export const AGENTS: Agent[] = [
 		status: "active",
 		runtime: "hermes",
 		task: "Hold the visitor's hand. Guidance is not permission."
+	},
+	{
+		id: "neuro-avatar",
+		name: "NEURO",
+		role: "Avatar",
+		place: "MAIN STREET",
+		districtId: "street",
+		status: "active",
+		runtime: "hermes",
+		task: "One identity. Street face. Knowledge is not permission."
 	},
 	{
 		id: "neuro",

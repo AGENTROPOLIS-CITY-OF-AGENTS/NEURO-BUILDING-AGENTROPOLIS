@@ -128,7 +128,7 @@ export function CityMap({ entered, onEnter, onExit, onOpenTab, onPlayFilm }: Cit
     <section className="flex flex-col gap-5">
       <div>
         <p className="text-xs tracking-[0.2em] text-cyan uppercase">The city</p>
-        <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight text-paper">Enter a building</h1>
+        <h1 className="mt-2 font-display text-2xl font-semibold tracking-tight text-paper">The city is the interface</h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-mute">{CITY_INTRO}</p>
       </div>
 

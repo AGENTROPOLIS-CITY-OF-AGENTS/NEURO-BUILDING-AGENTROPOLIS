@@ -29,12 +29,14 @@ import { cn } from "@/lib/utils";
 import { useCompute } from "@/lib/compute";
 import { ComputeDock } from "@/components/grid-chrome";
 import { type MsGfx } from "@/lib/gfx";
+import { ThresholdPortal } from "@/components/threshold-portal";
 
 type WorldProps = {
   focus: MsRegionId | null;
   inside: MsRegionId | null;
   highlight: MsRegionId | null;
   gfx: MsGfx;
+  mode: MsMode;
   onFocus: (id: MsRegionId) => void;
   onEnter: (id: MsRegionId) => void;
 };
@@ -404,6 +406,20 @@ export function MainStreet({ onClose, onCity }: { onClose: () => void; onCity: (
       </header>
 
       <div className="relative min-h-0 flex-1">
+        <div className="ms-back" aria-hidden>
+          {compute === "minimum" ? (
+            <img src="/media/stills/street-bridge.jpg" alt="" />
+          ) : (
+            <video
+              src="/media/stills/street-bridge.mp4"
+              poster="/media/stills/street-bridge.jpg"
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          )}
+        </div>
         {mapMode || !World ? (
           <MapFallback
             focus={focus}
@@ -420,6 +436,7 @@ export function MainStreet({ onClose, onCity }: { onClose: () => void; onCity: (
             inside={inside}
             highlight={highlight}
             gfx={gfx}
+            mode={state.mode}
             onFocus={(id) => {
               setFocus(id);
               markSeen(id);
@@ -431,28 +448,21 @@ export function MainStreet({ onClose, onCity }: { onClose: () => void; onCity: (
 
         <div className="pointer-events-none absolute inset-x-0 top-3 z-20 flex justify-center px-3">
           <p className="ms-where pointer-events-auto max-w-[36rem] px-4 py-2 text-center text-sm text-paper">
-            {inside ? region.lead : `You are on Main Street. ${place.plain}.`}
+            {inside ? region.short : place.plain}
           </p>
         </div>
 
         {!inside && focus && focus !== "plaza" ? (
-          <div className="pointer-events-none absolute inset-x-0 top-16 z-20 flex justify-center px-3">
-            <button
-              type="button"
-              data-ms-enter
-              onClick={() => enter(focus)}
-              className="ms-trace pointer-events-auto h-12 px-5 text-sm tracking-[0.08em] text-ms-cyan"
-            >
-              Enter this building
-            </button>
+          <div className="pointer-events-none absolute inset-x-0 bottom-28 z-20 flex justify-center px-3 md:bottom-10">
+            <ThresholdPortal label="Enter" onClick={() => enter(focus)} className="pointer-events-auto" data-ms-enter="" />
           </div>
         ) : null}
 
         {inside && sheet.kind === "none" ? (
           <div className="absolute inset-x-3 bottom-36 z-20 sm:inset-x-auto sm:right-3 sm:bottom-28 sm:w-80">
             <div className="ms-sheet p-4">
-              <p className="font-display text-sm font-semibold tracking-[0.08em] text-ms-cyan">{region.name}</p>
-              <p className="mt-1 text-sm leading-relaxed text-mute">{region.next}</p>
+              <p className="font-display text-sm font-semibold tracking-[0.08em] text-ms-cyan">{region.short}</p>
+              <p className="mt-1 text-sm text-mute">{region.next}</p>
               <div className="mt-3 grid gap-2">
                 {region.actions
                   .filter((a) => !(a.id === "lesson-wallet" && state.mode === "web2" && !inside))
@@ -487,10 +497,10 @@ export function MainStreet({ onClose, onCity }: { onClose: () => void; onCity: (
         {dockOpen ? (
           <aside data-ms-dock className="ms-dock absolute inset-x-3 bottom-3 z-30 sm:inset-x-auto sm:left-3 sm:w-[22rem]">
             <div className="flex items-start gap-3 p-3">
-              <span className="ms-avatar" aria-hidden />
+              <img className="ms-avatar" src="/media/stills/hood.jpg" alt="" />
               <div className="min-w-0 flex-1">
-                <p className="font-display text-2xs font-semibold tracking-[0.16em] text-ms-cyan uppercase">Navigator · Guide</p>
-                <p className="mt-1 text-sm leading-relaxed text-paper">{speech}</p>
+                <p className="font-display text-2xs font-semibold tracking-[0.16em] text-ms-cyan uppercase">NEURO · Avatar</p>
+                <p className="mt-1 text-sm text-paper">{speech}</p>
               </div>
               <button
                 type="button"
@@ -535,7 +545,7 @@ export function MainStreet({ onClose, onCity }: { onClose: () => void; onCity: (
             onClick={() => setDockOpen(true)}
           >
             <span className="ms-avatar ms-avatar-sm" aria-hidden />
-            Navigator
+            NEURO
           </button>
         )}
 
@@ -545,11 +555,11 @@ export function MainStreet({ onClose, onCity }: { onClose: () => void; onCity: (
       </div>
 
       <footer className="relative z-20 flex items-center justify-between gap-3 border-t border-white/10 px-3 py-2 text-2xs tracking-[0.12em] text-mute uppercase">
-        <span>{place.plain}</span>
+        <span>{place.label}</span>
         <button type="button" onClick={onCity} className="h-10 text-ms-cyan">
-          Enter the wider city
+          City
         </button>
-        <span>See it · choose · do it · check it · receipt</span>
+        <span>Web2 · Bridge · Web3</span>
       </footer>
     </div>
   );
