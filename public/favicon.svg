@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="AGENTROPOLIS">
+  <circle cx="16" cy="16" r="16" fill="#07080c"/>
+  <polygon fill="#ff2a4a" points="14,3 4,27 10,27 16,9"/>
+  <polygon fill="#22e8ff" points="18,3 28,27 22,27 16,9"/>
+  <rect x="9" y="17" width="7" height="4" fill="#ff2a4a"/>
+  <rect x="16" y="17" width="7" height="4" fill="#22e8ff"/>
+</svg>

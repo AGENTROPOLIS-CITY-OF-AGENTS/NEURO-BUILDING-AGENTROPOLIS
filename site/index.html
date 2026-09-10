@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="AGENTROPOLIS Main Street — a 3D street you can walk. Shop, work, learn, create. No wallet at the door."
+    />
+    <title>AGENTROPOLIS · Main Street</title>
+    <link rel="icon" href="./assets/mark.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Orbitron:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="scan" aria-hidden="true"></div>
+    <header class="top">
+      <a class="trace back" href="https://agentropolis.dev">City</a>
+      <div class="brand">
+        <img src="./assets/mark.svg" alt="" width="28" height="28" />
+        <div>
+          <p class="title">MAIN STREET</p>
+          <p class="sub">Working build · guide on duty</p>
+        </div>
+      </div>
+      <div class="quest" id="quest" aria-label="Route progress">
+        <span id="quest-n">1</span>
+      </div>
+      <div class="mode" role="tablist" aria-label="Street depth">
+        <button type="button" role="tab" data-mode="web2" aria-selected="true">Web2</button>
+        <button type="button" role="tab" data-mode="hybrid" aria-selected="false">Hybrid</button>
+        <button type="button" role="tab" data-mode="web3" aria-selected="false">Web3</button>
+      </div>
+    </header>
+
+    <main id="stage" class="stage">
+      <canvas id="gl" aria-label="Main Street 3D boulevard"></canvas>
+      <div id="map" class="map" hidden></div>
+      <p id="where" class="where">You are on Main Street. Look around.</p>
+      <button type="button" id="enter" class="trace enter" hidden>Enter this building</button>
+      <section id="sheet" class="sheet" hidden></section>
+    </main>
+
+    <aside id="dock" class="dock" data-ms-dock>
+      <div class="dock-head">
+        <span class="avatar" aria-hidden="true"></span>
+        <div>
+          <p class="dock-kicker">Navigator · Guide</p>
+          <p id="speech" class="speech">Welcome to Main Street. I can show you around.</p>
+        </div>
+        <button type="button" id="dock-hide" class="icon" aria-label="Hide guide">–</button>
+      </div>
+      <div id="intents" class="intents">
+        <button type="button" data-intent="shop">Shop</button>
+        <button type="button" data-intent="work">Work</button>
+        <button type="button" data-intent="create">Create</button>
+        <button type="button" data-intent="learn">Learn</button>
+        <button type="button" data-intent="explore">Explore</button>
+      </div>
+      <div id="acts" class="acts">
+        <button type="button" data-act="show">Show me</button>
+        <button type="button" data-act="take">Take me there</button>
+        <button type="button" data-act="explain">Explain</button>
+      </div>
+    </aside>
+    <button type="button" id="dock-show" class="dock mini" hidden>
+      <span class="avatar sm" aria-hidden="true"></span>
+      Navigator
+    </button>
+
+    <footer class="foot">
+      <span id="place">Look around</span>
+      <a href="https://agentropolis.dev">Enter the wider city</a>
+      <span>See it · choose · do it · check it · receipt</span>
+    </footer>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

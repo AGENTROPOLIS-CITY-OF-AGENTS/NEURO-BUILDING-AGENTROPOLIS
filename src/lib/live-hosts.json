@@ -1,0 +1,207 @@
+{
+  "capturedAt": "2026-09-08T05:53:09.639Z",
+  "rule": "LIVE containers show captured screenshots of the live URL. Never cinematic or random video. Recapture when a host UI changes.",
+  "construction": "Working build. Under construction. Host UI updates must refresh these stills.",
+  "hosts": [
+    {
+      "id": "aquaduct-pages",
+      "label": "AQUADUCT",
+      "url": "https://agentropolis-city-of-agents.github.io/AGENTROPOLIS-AQUADUCT/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/aquaduct-pages.jpg",
+      "ms": 11695
+    },
+    {
+      "id": "atg-pages",
+      "label": "ATG",
+      "url": "https://agentropolis-city-of-agents.github.io/AGENTROPOLIS-ATG/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/atg-pages.jpg",
+      "ms": 4855
+    },
+    {
+      "id": "atralith-kit",
+      "label": "ATG",
+      "url": "https://agentropolis-city-of-agents.github.io/AGENTROPOLIS-ATG/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/atg-pages.jpg",
+      "ms": 4855,
+      "aliasOf": "atg-pages"
+    },
+    {
+      "id": "botbae-pages",
+      "label": "BOTBAE builder",
+      "url": "https://agentropolis-city-of-agents.github.io/AGENTROPOLIS-BOTBAE/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/botbae-pages.jpg",
+      "ms": 11640
+    },
+    {
+      "id": "chaos-rank",
+      "label": "CHAOS RANK",
+      "url": "https://agentropolis-city-of-agents.github.io/AGENTROPOLIS-CHAOS-RANK/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/chaos-rank.jpg",
+      "ms": 4812
+    },
+    {
+      "id": "creator-pages",
+      "label": "CREATOR",
+      "url": "https://agentropolis-city-of-agents.github.io/AGENTROPOLIS-CREATOR/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/creator-pages.jpg",
+      "ms": 2209
+    },
+    {
+      "id": "gate-botbae",
+      "label": "BOTBAE builder",
+      "url": "https://agentropolis-city-of-agents.github.io/AGENTROPOLIS-BOTBAE/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/botbae-pages.jpg",
+      "ms": 11640,
+      "aliasOf": "botbae-pages"
+    },
+    {
+      "id": "hermes-community",
+      "label": "HERMES Community",
+      "url": "https://agentropolis-city-of-agents.github.io/HERMES-CITY/community/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/hermes-community.jpg",
+      "ms": 2405
+    },
+    {
+      "id": "hermes-pages",
+      "label": "HERMES CITY",
+      "url": "https://agentropolis-city-of-agents.github.io/HERMES-CITY/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/hermes-pages.jpg",
+      "ms": 6469
+    },
+    {
+      "id": "hermes-social",
+      "label": "HERMES Social Grid",
+      "url": "https://agentropolis-city-of-agents.github.io/HERMES-CITY/social/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/hermes-social.jpg",
+      "ms": 2402
+    },
+    {
+      "id": "host-agentropolis",
+      "label": "AGENTROPOLIS",
+      "url": "https://agentropolis.dev",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/host-agentropolis.jpg",
+      "ms": 4205
+    },
+    {
+      "id": "host-gmn",
+      "label": "GMN",
+      "url": "https://getmoneynews.online",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/host-gmn.jpg",
+      "ms": 4513
+    },
+    {
+      "id": "host-neteru",
+      "label": "NETERU",
+      "url": "https://neteru.xyz",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/host-neteru.jpg",
+      "ms": 5814
+    },
+    {
+      "id": "host-nmxai",
+      "label": "NMX AI",
+      "url": "https://nmxai.xyz",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/host-nmxai.jpg",
+      "ms": 12372
+    },
+    {
+      "id": "host-wiredchaos",
+      "label": "WIRED CHAOS",
+      "url": "https://wiredchaos.xyz",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/host-wiredchaos.jpg",
+      "ms": 4296
+    },
+    {
+      "id": "mcp-pages",
+      "label": "AGENT MCP",
+      "url": "https://agentropolis-city-of-agents.github.io/AGENTROPOLIS-AGENT-MCP/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/mcp-pages.jpg",
+      "ms": 2882
+    },
+    {
+      "id": "parallax-pages",
+      "label": "PARALLAX",
+      "url": "https://agentropolis-city-of-agents.github.io/AGENTROPOLIS-PARALLAX-SPATIAL-MCP/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/parallax-pages.jpg",
+      "ms": 2392
+    },
+    {
+      "id": "studio-com",
+      "label": "NEURO STUDIO",
+      "url": "https://neurometax.com",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/studio-com.jpg",
+      "ms": 5465
+    },
+    {
+      "id": "studio-online",
+      "label": "N3",
+      "url": "https://neurometax.online",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/studio-online.jpg",
+      "ms": 5312
+    },
+    {
+      "id": "studio-store",
+      "label": "NEURO STORE",
+      "url": "https://neurometax.store",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/studio-store.jpg",
+      "ms": 3254
+    },
+    {
+      "id": "webmcp-pages",
+      "label": "WebMCP Challenge",
+      "url": "https://agentropolis-city-of-agents.github.io/AGENTROPOLIS-WEBMCP-CHALLENGE/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/webmcp-pages.jpg",
+      "ms": 12546
+    },
+    {
+      "id": "world-pages",
+      "label": "AGENTROPOLIS WORLD",
+      "url": "https://agentropolis-city-of-agents.github.io/AGENTROPOLIS-WORLD/",
+      "ok": true,
+      "status": 200,
+      "file": "/media/stills/live/world-pages.jpg",
+      "ms": 3200
+    }
+  ]
+}

@@ -1,0 +1,353 @@
+WEBVTT
+
+1
+00:00:00.140 --> 00:00:04.000
+A year ago, I called myself a "vibe coder, and technically
+
+2
+00:00:04.240 --> 00:00:08.190
+I still vibe code, which, wait, terrible name for what this
+
+3
+00:00:08.330 --> 00:00:10.750
+actually is. But that's where I started.
+
+4
+00:00:11.210 --> 00:00:14.310
+I don't sit down and manually write every line of software
+
+5
+00:00:14.390 --> 00:00:18.210
+I build. I work with AI, I give agents problems, I
+
+6
+00:00:18.250 --> 00:00:21.880
+direct them, I inspect what they produce, I reject a lot
+
+7
+00:00:21.890 --> 00:00:25.040
+of it, I change the architecture, and we build again.
+
+8
+00:00:25.560 --> 00:00:28.020
+But somewhere along the way, the problems changed.
+
+9
+00:00:28.440 --> 00:00:31.500
+I stopped asking "How do I- I built this app and
+
+10
+00:00:31.560 --> 00:00:34.940
+started asking: How should all of these systems work together?
+
+11
+00:00:35.440 --> 00:00:36.480
+Who owns the memory?
+
+12
+00:00:36.980 --> 00:00:38.450
+Which agent gets access?
+
+13
+00:00:38.890 --> 00:00:40.870
+How does one agent hand work to another?
+
+14
+00:00:41.350 --> 00:00:43.490
+How do I know an action actually happened?
+
+15
+00:00:43.950 --> 00:00:46.330
+What stops an agent from exceeding its authority?
+
+16
+00:00:46.850 --> 00:00:48.950
+And what does a human need to see to remain in
+
+17
+00:00:49.010 --> 00:00:53.720
+control? That last one, that's the Jedi Council problem: Who gets
+
+18
+00:00:53.760 --> 00:00:55.340
+a lightsaber? Who doesn't?
+
+19
+00:00:55.680 --> 00:00:56.640
+Who thinks they should?
+
+20
+00:00:57.140 --> 00:01:00.000
+Anyway, those weren't vibe coding problems anymore.
+
+21
+00:01:00.540 --> 00:01:04.280
+They were systems problems, and solving them became Agentropolis.
+
+22
+00:01:04.760 --> 00:01:07.420
+My role changed too; I don't need to be the best
+
+23
+00:01:07.480 --> 00:01:12.970
+Python programmer, Rust engineer, product designer, and 3D developer simultaneously.
+
+24
+00:01:13.450 --> 00:01:14.470
+That's not how I work.
+
+25
+00:01:14.990 --> 00:01:19.030
+I build teams of intelligence around the problem: one agent researches,
+
+26
+00:01:19.410 --> 00:01:23.700
+another implements, another reviews, another challenges the assumptions.
+
+27
+00:01:24.160 --> 00:01:26.960
+Hermes provides persistent agents and coordination.
+
+28
+00:01:27.440 --> 00:01:30.000
+Coding agents work directly against repositories.
+
+29
+00:01:30.540 --> 00:01:34.380
+And I stay above the system, deciding what belongs, what doesn't,
+
+30
+00:01:34.720 --> 00:01:36.620
+and where the architecture needs to change.
+
+31
+00:01:37.170 --> 00:01:41.410
+AI doesn't eliminate expertise, it changes where the human expertise has
+
+32
+00:01:41.470 --> 00:01:44.610
+to be applied. This is another part of working with AI
+
+33
+00:01:44.670 --> 00:01:45.950
+that doesn't get shown enough.
+
+34
+00:01:46.450 --> 00:01:50.290
+An agent can satisfy the requirements and still completely miss the
+
+35
+00:01:50.450 --> 00:01:55.220
+idea. This version technically worked, the information was there, the interface
+
+36
+00:01:55.300 --> 00:01:58.200
+rendered, the deployment worked, and I hated it.
+
+37
+00:01:58.680 --> 00:02:00.000
+It looked like an enterprise app.
+
+38
+00:02:00.960 --> 00:02:03.440
+This was the part in the movie where everybody else thinks
+
+39
+00:02:03.460 --> 00:02:06.520
+the machine is working fine, and I'm yelling at the screen
+
+40
+00:02:06.560 --> 00:02:08.470
+because I can already see act three.
+
+41
+00:02:09.090 --> 00:02:12.990
+Agentropolis wasn't supposed to feel like an enterprise dashboard, so the
+
+42
+00:02:13.030 --> 00:02:15.710
+problem wasn't code, the problem was direction.
+
+43
+00:02:16.310 --> 00:02:19.790
+I pulled Parallax back up as the visual reference, rewrote the
+
+44
+00:02:19.830 --> 00:02:24.140
+design canon, changed the acceptance criteria, and sent the system through
+
+45
+00:02:24.160 --> 00:02:27.920
+another iteration. That's what directing AI actually looks like.
+
+46
+00:02:28.340 --> 00:02:30.000
+Generation is cheap, judgement is cheap.
+
+47
+00:02:30.320 --> 00:02:35.130
+Isn't. Parallax came from the same philosophy: never confuse generation with
+
+48
+00:02:35.190 --> 00:02:38.650
+proof. An agent can tell me something is finished, I want
+
+49
+00:02:38.670 --> 00:02:42.640
+the system to inspect the result, verify the objective, and leave
+
+50
+00:02:42.740 --> 00:02:46.040
+evidence. C. Act. See again, prove it.
+
+51
+00:02:46.540 --> 00:02:49.970
+That idea started with spatial environments, but it became one of
+
+52
+00:02:50.010 --> 00:02:54.610
+my principles for agentic systems: generated doesn't equal verified.
+
+53
+00:02:55.030 --> 00:02:57.790
+You don't hand somebody the Death Star and skip asking who
+
+54
+00:02:57.870 --> 00:03:01.280
+has the keys. I also didn't build this inside a research
+
+55
+00:03:01.340 --> 00:03:04.960
+laboratory. There wasn't an engineering department waiting downstairs.
+
+56
+00:03:05.440 --> 00:03:06.440
+I'm a solo founder.
+
+57
+00:03:06.940 --> 00:03:11.440
+That constraint forced a different question: how much organizational capability can
+
+58
+00:03:11.600 --> 00:03:13.380
+one person assemble using agents?
+
+59
+00:03:13.860 --> 00:03:19.170
+Research. Architecture, code, design, documentation, testing, operations,
+
+60
+00:03:19.270 --> 00:03:24.650
+creative production, not by pretending I personally possess every specialization, but
+
+61
+00:03:24.690 --> 00:03:27.470
+by learning how to coordinate machines that increasingly do.
+
+62
+00:03:28.190 --> 00:03:31.510
+At that point it was basically "push it, except I was
+
+63
+00:03:31.590 --> 00:03:34.120
+pushing agents across the entire architecture.
+
+64
+00:03:34.660 --> 00:03:36.580
+Agentropolis became the experiment.
+
+65
+00:03:37.140 --> 00:03:39.440
+So what do I actually call what I do now?
+
+66
+00:03:39.960 --> 00:03:44.340
+Probably agentic systems architecture with a lot of creative technology mixed
+
+67
+00:03:44.340 --> 00:03:47.810
+in. I work between the idea and the implementation.
+
+68
+00:03:48.370 --> 00:03:52.650
+I turn emerging capabilities into systems, I design agent roles and
+
+69
+00:03:52.670 --> 00:03:56.950
+authority boundaries, I decide what gets delegated to machines and what
+
+70
+00:03:57.030 --> 00:04:00.840
+stays under human control, then I use agents to help execute
+
+71
+00:04:00.850 --> 00:04:05.340
+the architecture. I'm still learning, the technology is still changing, but
+
+72
+00:04:05.360 --> 00:04:07.180
+that's also why I'm building this now.
+
+73
+00:04:07.680 --> 00:04:10.600
+I'm not convinced the next generation of software will look like
+
+74
+00:04:10.620 --> 00:04:14.480
+today's applications. I think we're moving towards systems populated by By
+
+75
+00:04:14.540 --> 00:04:19.770
+persistent agents, different models, different machines, different owners, different
+
+76
+00:04:19.810 --> 00:04:23.010
+levels of authority, working together across environments.
+
+77
+00:04:23.510 --> 00:04:27.110
+So now I've got agents talking to agents across machines, and
+
+78
+00:04:27.190 --> 00:04:30.560
+I'm sitting there thinking, "Okay, this is starting to look less
+
+79
+00:04:30.620 --> 00:04:32.700
+like an app and more like the rebel fleet.
+
+80
+00:04:33.180 --> 00:04:36.460
+If that's where we're going, the hard problem isn't simply making
+
+81
+00:04:36.480 --> 00:04:40.360
+the agents smarter, it's designing the systems they operate inside.
+
+82
+00:04:40.800 --> 00:04:42.380
+That's the problem I'm interested in.
+
+83
+00:04:42.840 --> 00:04:44.380
+That's what I've spent this year learning how to solve.
+
+84
+00:04:44.400 --> 00:04:48.230
+How to build an agentropolis is my working answer, not a
+
+85
+00:04:48.310 --> 00:04:51.850
+finished answer, a system that's alive enough to keep changing as
+
+86
+00:04:51.890 --> 00:04:55.730
+the technology changes. I started this as a vibe coder, I
+
+87
+00:04:55.830 --> 00:04:59.230
+ended up becoming an architect of agent systems, and I'm just
+
+88
+00:04:59.270 --> 00:04:59.910
+getting started.
