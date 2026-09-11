@@ -1,4 +1,3 @@
-import { StartCta } from "@/components/start-cta";
 import { HubCard } from "@/components/grid-hub";
 import { FLOOR_MODES, type FloorMode } from "@/lib/journeys";
 import { cn } from "@/lib/utils";
@@ -46,6 +45,7 @@ export function StartHere({
   onProtocol,
   onStreet,
   onDistrict,
+  onWorld,
 }: {
   onGuide: () => void;
   onFilm: () => void;
@@ -54,6 +54,7 @@ export function StartHere({
   onProtocol: () => void;
   onStreet: () => void;
   onDistrict: (id: string) => void;
+  onWorld: () => void;
 }) {
   const pick = (id: string) => {
     if (id === "construct") onBuild();
@@ -70,9 +71,8 @@ export function StartHere({
         <div className="hero-vignette" />
       </div>
 
-      <div className="pointer-events-auto absolute inset-x-0 top-[10%] z-10 flex flex-col items-center gap-4 px-3 md:top-[12%]">
-        <StartCta onEnter={onCity} />
-        <HubCard onPick={pick} onCenter={onCity} />
+      <div className="pointer-events-auto absolute inset-x-0 top-[18%] z-10 flex flex-col items-center px-3 md:top-[16%]">
+        <HubCard onPick={pick} onCenter={onCity} onWorld={onWorld} />
       </div>
 
       <div className="sr-only">
@@ -90,6 +90,9 @@ export function StartHere({
         </button>
         <button type="button" data-start-opt="street" onClick={onStreet}>
           Walk Main Street
+        </button>
+        <button type="button" data-start-opt="world" data-stack-open onClick={onWorld}>
+          Explore the world
         </button>
       </div>
     </div>

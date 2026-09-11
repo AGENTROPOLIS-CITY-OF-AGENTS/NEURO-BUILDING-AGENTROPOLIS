@@ -13,6 +13,7 @@ type CityStageProps = {
   onSelect: (id: string) => void;
 };
 
+const HUB = new Set(["mission", "hermes", "street", "construct", "parallax", "holofoil"]);
 const OVERVIEW_POSTER = "/media/stills/city-overview.jpg";
 const BOTBAE_POSTER = "/media/stills/botbae-hero.jpg";
 const UTILITY_POSTER = "/media/stills/origin-ios.jpg";
@@ -66,7 +67,7 @@ export function CityStage({ selected, hovered, lit, quiet, trail, trailKind, onH
       />
 
       <div className="city-atmosphere pointer-events-none absolute inset-0" />
-      <CityField lit={lit && !utility} accent={construct ? "pink" : "cyan"} />
+      {quiet || (!selected && !trail) ? null : <CityField lit={lit && !utility} accent={construct ? "pink" : "cyan"} />}
 
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full"
@@ -78,23 +79,25 @@ export function CityStage({ selected, hovered, lit, quiet, trail, trailKind, onH
           const da = DISTRICTS.find((d) => d.id === a);
           const db = DISTRICTS.find((d) => d.id === b);
           if (!da || !db) return null;
+          const overview = !selected && !trail;
+          if (overview && (!HUB.has(a) || !HUB.has(b))) return null;
           const hot = selected === a || selected === b || hovered === a || hovered === b;
           const onTrail = Boolean(trail && trail.includes(a) && trail.includes(b));
           const botbaeRoute = a === "construct" || b === "construct";
           const utilityRoute = a === "utility" || b === "utility";
           const parallaxRoute = a === "parallax" || b === "parallax";
           const d = routePath(parseFloat(da.x), parseFloat(da.y), parseFloat(db.x), parseFloat(db.y));
-          const fade = quiet
+          const fade = quiet || overview
             ? hot
-              ? 0.34
-              : 0.1
+              ? 0.7
+              : 0.22
             : isolate && !hot
               ? 0.22
               : hot || onTrail
                 ? 1
                 : trail
                   ? 0.28
-                  : 0.92;
+                  : 0.4;
           const stroke = botbaeRoute
             ? "var(--color-pink)"
             : utilityRoute
@@ -167,7 +170,12 @@ export function CityStage({ selected, hovered, lit, quiet, trail, trailKind, onH
       </svg>
 
       <div className={cn("absolute inset-0", isolate && "opacity-70")}>
-        {DISTRICTS.map((d) => (
+        {DISTRICTS.filter((d) => {
+          if (selected || hovered || trail) {
+            return HUB.has(d.id) || d.id === selected || d.id === hovered || Boolean(trail?.includes(d.id));
+          }
+          return HUB.has(d.id);
+        }).map((d) => (
           <DistrictNode
             key={d.id}
             district={d}
@@ -178,32 +186,33 @@ export function CityStage({ selected, hovered, lit, quiet, trail, trailKind, onH
               (isolate && d.id !== district?.id) ||
               Boolean(trail && !trail.includes(d.id) && selected !== d.id && hovered !== d.id)
             }
-            named={selected === d.id || hovered === d.id || Boolean(trail?.includes(d.id) && selected === d.id)}
+            named={selected === d.id || hovered === d.id}
             hold={protocol && d.id === "aegis" && selected === "aegis"}
             onHover={onHover}
             onSelect={onSelect}
           />
         ))}
-        {/* Presence placeholders only. Not agent canon. Replace when NEURO movement assets exist. */}
-        {AGENTS.map((a, i) => {
-          const home = DISTRICTS.find((d) => d.id === a.districtId);
-          if (!home) return null;
-          return (
-            <span
-              key={a.id}
-              data-presence={a.id}
-              aria-hidden
-              title="Temporary presence"
-              className="presence-tick pointer-events-none absolute"
-              style={{
-                left: home.x,
-                top: home.y,
-                animationDelay: `${i * 0.55}s`,
-                opacity: a.status === "idle" ? 0.28 : 0.7,
-              }}
-            />
-          );
-        })}
+        {selected
+          ? AGENTS.filter((a) => a.districtId === selected).map((a, i) => {
+              const home = DISTRICTS.find((d) => d.id === a.districtId);
+              if (!home) return null;
+              return (
+                <span
+                  key={a.id}
+                  data-presence={a.id}
+                  aria-hidden
+                  title="Temporary presence"
+                  className="presence-tick pointer-events-none absolute"
+                  style={{
+                    left: home.x,
+                    top: home.y,
+                    animationDelay: `${i * 0.55}s`,
+                    opacity: a.status === "idle" ? 0.28 : 0.7,
+                  }}
+                />
+              );
+            })
+          : null}
         {packet ? (
           <span
             data-protocol-packet

@@ -1,10 +1,11 @@
 import { DISTRICTS, type District } from "@/lib/grid";
 import { PROTOCOL_RUNS, PROTOCOL_TRAIL } from "@/lib/atg";
 
-export type FloorMode = "city" | "start" | "journey" | "protocol" | "compare" | "find";
+export type FloorMode = "city" | "start" | "journey" | "protocol" | "compare" | "find" | "world";
 
 export const FLOOR_MODES: { id: FloorMode; label: string; short: string }[] = [
   { id: "city", label: "City view", short: "City" },
+  { id: "world", label: "World stack", short: "World" },
   { id: "start", label: "Start here", short: "Start" },
   { id: "journey", label: "Guided tour", short: "Tour" },
   { id: "protocol", label: "Protocol", short: "ATG" },

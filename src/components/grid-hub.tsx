@@ -77,21 +77,30 @@ export function GridHub({
 export function HubCard({
   onPick,
   onCenter,
+  onWorld,
   className,
 }: {
   onPick: (districtId: string) => void;
   onCenter: () => void;
+  onWorld?: () => void;
   className?: string;
 }) {
   return (
     <article className={cn("hub-card", className)} data-hub-card>
       <GridHub onPick={onPick} onCenter={onCenter} />
       <div className="hub-copy">
-        <h2 className="hub-title">One grid. Six doors.</h2>
-        <p className="hub-body">Tap a node. The rest stays quiet until you need it.</p>
-        <button type="button" className="hub-go" onClick={onCenter}>
-          Enter the city
-        </button>
+        <h2 className="hub-title">FROM CITY STREETS TO ORBITAL SPACE</h2>
+        <p className="hub-body">AGENTROPOLIS is being built as one connected intelligence civilization.</p>
+        <div className="flex flex-wrap gap-2">
+          {onWorld ? (
+            <button type="button" className="hub-go" onClick={onWorld} data-stack-open="">
+              Explore the world
+            </button>
+          ) : null}
+          <button type="button" className={cn("hub-go", onWorld && "hub-go-ghost")} onClick={onCenter} data-start-enter="">
+            Enter Agentropolis
+          </button>
+        </div>
       </div>
     </article>
   );

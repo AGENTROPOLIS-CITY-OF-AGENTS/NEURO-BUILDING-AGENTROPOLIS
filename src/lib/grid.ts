@@ -1211,6 +1211,12 @@ export const PALETTE = [
 		districtId: null
 	},
 	{
+		id: "world-stack",
+		label: "World stack",
+		view: "city",
+		districtId: null
+	},
+	{
 		id: "film",
 		label: "Play the documentary",
 		view: "atv",

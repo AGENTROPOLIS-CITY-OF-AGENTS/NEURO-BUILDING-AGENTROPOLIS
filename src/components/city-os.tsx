@@ -85,6 +85,7 @@ export function CityOS() {
   }> | null>(null);
   const [Street, setStreet] = useState<ComponentType<{ onClose: () => void; onCity: () => void }> | null>(null);
   const [Foil, setFoil] = useState<ComponentType<{ onClose: () => void }> | null>(null);
+  const [Stack, setStack] = useState<ComponentType<{ onClose: () => void; onCity: () => void }> | null>(null);
   const [Film, setFilm] = useState<any>(null);
   const [Guide, setGuide] = useState<ComponentType<{
     step: number;
@@ -160,7 +161,7 @@ export function CityOS() {
   }, [filmOpen, ambientMuted]);
 
   useEffect(() => {
-    if (compute === "minimum" || mode === "start") {
+    if (compute === "minimum" || mode === "start" || mode === "world") {
       setWorld(null);
       return;
     }
@@ -217,6 +218,17 @@ export function CityOS() {
       alive = false;
     };
   }, [view, mode, selected, filmOpen]);
+
+  useEffect(() => {
+    if (!(view === "city" && mode === "world" && !filmOpen)) return;
+    let alive = true;
+    void import("@/components/world-stack").then((mod) => {
+      if (alive) setStack(() => mod.WorldStack);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [view, mode, filmOpen]);
 
   useEffect(() => {
     if (!filmOpen) return;
@@ -290,6 +302,10 @@ export function CityOS() {
         }
         if (cityInside) {
           setCityInside(null);
+          return;
+        }
+        if (mode === "world") {
+          setMode("city");
           return;
         }
         if (mode !== "city") {
@@ -442,7 +458,7 @@ export function CityOS() {
     if (next === "city") {
       if (mode === "journey" || mode === "start" || mode === "compare" || mode === "protocol") setSelected(null);
     }
-    if (next === "start" || next === "compare") {
+    if (next === "start" || next === "compare" || next === "world") {
       setSelected(null);
     }
   };
@@ -472,6 +488,12 @@ export function CityOS() {
       setMode("city");
       return;
     }
+    if (item.id === "world-stack") {
+      setMode("world");
+      setView("city");
+      setPalette(false);
+      return;
+    }
     if (item.id === "protocol-walk" || item.id === "run-mandate") {
       startProtocol(0);
       return;
@@ -484,13 +506,13 @@ export function CityOS() {
   const district = selected && mode === "city" ? DISTRICT_BY_ID[selected] : null;
   const agentFocus = focusAgent ? AGENTS.find((a) => a.id === focusAgent) : null;
   const line = attn[tick % attn.length] ?? FLOOR[0]!;
-  const showCityCopy = view === "city" && mode === "city" && !selected && !filmOpen;
   const cityLit = view === "city" && !filmOpen;
   const campusOpen = view === "city" && mode === "city" && selected === "utility" && !filmOpen;
   const streetOpen = view === "city" && mode === "city" && selected === "street" && !filmOpen;
   const foilOpen =
     !filmOpen && (view === "observatory" || (view === "city" && mode === "city" && selected === "holofoil"));
-  const overlayOpen = campusOpen || streetOpen || foilOpen;
+  const worldOpen = view === "city" && mode === "world" && !filmOpen;
+  const overlayOpen = campusOpen || streetOpen || foilOpen || worldOpen;
   const trail =
     view === "city" && !filmOpen && mode === "journey"
       ? JOURNEY_TRAIL
@@ -502,15 +524,15 @@ export function CityOS() {
   return (
     <div className="relative h-dvh overflow-hidden bg-obsidian text-paper" data-compute={compute}>
       <div className="absolute inset-0">
-        {cityGfx === "map" || overlayOpen || !World || mode === "start" || filmOpen ? (
-          mode === "start" || filmOpen ? (
+        {cityGfx === "map" || overlayOpen || !World || mode === "start" || filmOpen || mode === "world" ? (
+          mode === "start" || filmOpen || mode === "world" ? (
             <div className="h-full w-full bg-obsidian" />
           ) : (
             <CityStage
               selected={view === "city" ? selected : null}
               hovered={view === "city" ? hovered : null}
               lit={cityLit}
-              quiet={false}
+              quiet={!selected}
               trail={trail}
               trailKind={trailKind}
               onHover={setHovered}
@@ -534,13 +556,6 @@ export function CityOS() {
           />
         )}
       </div>
-
-      {showCityCopy ? (
-        <div className="pointer-events-none absolute inset-x-0 top-20 z-10 px-4 md:top-24 sm:px-8">
-          <p className="max-w-lg text-sm tracking-[0.18em] text-paper uppercase">{SITE_TAGLINE}</p>
-          <HierarchyTrail at={cityInside ? "BUILDING" : "GRID"} className="mt-2" />
-        </div>
-      ) : null}
 
       {view === "city" && mode === "city" && cityInside ? (
         <div className="absolute bottom-28 left-4 z-20 flex flex-wrap gap-2 sm:left-6">
@@ -567,20 +582,6 @@ export function CityOS() {
         </div>
       ) : null}
 
-      {view === "city" && mode === "city" && !selected && !filmOpen ? (
-        <div className="absolute bottom-28 left-4 z-20 sm:left-6">
-          <button
-            type="button"
-            data-film
-            onClick={() => playFilm("open")}
-            className="inline-flex h-11 items-center gap-2 rounded-md bg-paper px-4 text-2xs font-medium tracking-[0.16em] text-obsidian shadow-[var(--shadow-border)] transition-transform duration-150 ease-out hover:bg-cyan active:scale-[0.96]"
-          >
-            <Play className="size-3.5" fill="currentColor" />
-            PLAY FILM
-          </button>
-        </div>
-      ) : null}
-
       {view === "city" && mode === "start" && !filmOpen ? (
         <StartHere
           onGuide={() => startJourney(0)}
@@ -590,6 +591,7 @@ export function CityOS() {
           onProtocol={() => startProtocol(0)}
           onStreet={() => openDistrict("street")}
           onDistrict={openDistrict}
+          onWorld={() => setFloor("world")}
         />
       ) : null}
 
@@ -661,6 +663,10 @@ export function CityOS() {
         />
       ) : null}
 
+      {worldOpen && Stack ? (
+        <Stack onClose={() => setFloor("city")} onCity={() => setFloor("city")} />
+      ) : null}
+
       <div
         data-film-stage
         className={cn(
@@ -712,7 +718,7 @@ export function CityOS() {
               .dev
             </a>
             {mode !== "start" ? <StudioRail /> : null}
-            <ComputeDock value={compute} onChange={setCompute} />
+            {mode !== "start" ? <ComputeDock value={compute} onChange={setCompute} /> : null}
             <button
               type="button"
               data-ambient
@@ -731,6 +737,7 @@ export function CityOS() {
             </button>
             <button
               type="button"
+              data-film
               data-film-header
               onClick={() => playFilm("open")}
               className="inline-flex h-11 items-center gap-2 rounded-md px-3 text-xs tracking-[0.12em] text-cyan shadow-[var(--shadow-border)] transition-transform duration-150 ease-out hover:text-red active:scale-[0.96]"
@@ -738,9 +745,11 @@ export function CityOS() {
               <Play className="size-3.5" fill="currentColor" />
               <span className="hidden sm:inline">Film</span>
             </button>
-            <span className="hidden h-8 items-center rounded-sm px-2 font-mono text-2xs tracking-[0.14em] text-cyan shadow-[var(--shadow-border)] sm:inline-flex">
-              {DATA_MODE}
-            </span>
+            {mode !== "start" ? (
+              <span className="hidden h-8 items-center rounded-sm px-2 font-mono text-2xs tracking-[0.14em] text-cyan shadow-[var(--shadow-border)] sm:inline-flex">
+                {DATA_MODE}
+              </span>
+            ) : null}
             <button
               type="button"
               data-command
@@ -753,6 +762,7 @@ export function CityOS() {
             </button>
           </div>
         </div>
+        {mode === "start" ? null : (
         <nav className="hidden gap-1 overflow-x-auto px-4 pb-2 md:flex sm:px-6" aria-label="City navigation">
           {NAV.map((item) => (
             <button
@@ -769,6 +779,7 @@ export function CityOS() {
             </button>
           ))}
         </nav>
+        )}
       </header>
 
       {agentFocus && view === "city" && !overlayOpen ? (
@@ -796,13 +807,13 @@ export function CityOS() {
         />
       ) : null}
 
-      {filmOpen || overlayOpen ? null : <FloorDock mode={view === "city" ? mode : "city"} onMode={setFloor} />}
+      {filmOpen || overlayOpen || mode === "start" ? null : <FloorDock mode={view === "city" ? mode : "city"} onMode={setFloor} />}
 
       <footer
         data-ticker
         className={cn(
           "absolute inset-x-0 bottom-0 z-50 flex items-center gap-3 bg-obsidian/78 px-3 py-2 shadow-[var(--shadow-border)] backdrop-blur-md sm:px-6",
-          overlayOpen && "invisible pointer-events-none",
+          overlayOpen || mode === "start" ? "invisible pointer-events-none" : null,
         )}
       >
         <button

@@ -3,7 +3,7 @@ import type { CityGfx } from "@/lib/gfx";
 
 /** Cinematic lighting bible. Night city. Motivated lights only. */
 
-export type CineStage = "city" | "street" | "foil" | "campus";
+export type CineStage = "city" | "street" | "foil" | "campus" | "orbit";
 
 export const CINE = {
   clear: GRID_COLORS.obsidian,
@@ -31,11 +31,13 @@ export type CineRig = {
 export function cineRig(stage: CineStage, gfx: CityGfx, inside = false): CineRig {
   const low = gfx === "low";
   const high = gfx === "high";
-  const night = stage === "city" || stage === "foil";
+  const night = stage === "city" || stage === "foil" || stage === "orbit";
   const fog: CineRig["fog"] = night
     ? stage === "foil"
       ? [CINE.fogFoil, inside ? 8 : 14, inside ? 36 : 72]
-      : [CINE.fog, inside ? 10 : 22, inside ? 48 : 110]
+      : stage === "orbit"
+        ? ["#02040a", 12, 42]
+        : [CINE.fog, inside ? 10 : 22, inside ? 48 : 110]
     : null;
 
   if (inside) {

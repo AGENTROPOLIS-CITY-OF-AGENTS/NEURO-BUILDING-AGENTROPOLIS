@@ -1768,6 +1768,12 @@ html[data-compute="minimum"] .liquid-glass {
   background: var(--color-cyan);
 }
 
+.hub-go-ghost {
+  color: var(--color-cyan);
+  background: transparent;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-cyan) 40%, transparent);
+}
+
 @keyframes hub-run {
   to {
     stroke-dashoffset: -176;
@@ -1818,5 +1824,159 @@ html[data-compute="minimum"] .liquid-glass {
 
   [data-start] .hero-type {
     font-size: clamp(1.4rem, 8vw, 2.2rem);
+  }
+}
+
+.stack-rail {
+  position: absolute;
+  top: 50%;
+  left: 0.4rem;
+  z-index: 30;
+  display: flex;
+  transform: translateY(-50%);
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.stack-tick {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 0.45rem;
+  text-align: left;
+  color: var(--color-mute);
+}
+
+.stack-tick.is-on {
+  color: var(--color-cyan);
+}
+
+.stack-tick-mark {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+}
+
+.stack-tick-label {
+  font-family: var(--font-display);
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+}
+
+.stack-hud {
+  padding: 0.85rem 1rem;
+  background: color-mix(in oklab, var(--color-obsidian) 78%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-cyan) 22%, transparent);
+}
+
+.stack-cta {
+  height: 2.75rem;
+  padding: 0 1rem;
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--color-obsidian);
+  background: var(--color-cyan);
+}
+
+.stack-cta.is-ghost {
+  color: var(--color-cyan);
+  background: transparent;
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-cyan) 40%, transparent);
+}
+
+.stack-pin {
+  display: block;
+  padding: 0.1rem 0.28rem;
+  font-family: var(--font-display);
+  font-size: 0.48rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  color: var(--color-cyan);
+  background: rgb(5 7 10 / 0.72);
+}
+
+.stack-pin.is-city {
+  color: var(--color-red);
+}
+
+.stack-pin.is-gov {
+  color: #d8c48a;
+}
+
+.stack-fall {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 46%, #0b1c24 0%, #02040a 62%);
+}
+
+.stack-orb {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  width: min(58vw, 18rem);
+  height: min(58vw, 18rem);
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background:
+    radial-gradient(circle at 38% 32%, #14323c, #05070a 68%);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-cyan) 28%, transparent);
+}
+
+.stack-rings {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.stack-rings span {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  border: 1px solid color-mix(in oklab, var(--color-cyan) 28%, transparent);
+  border-radius: 999px;
+  transform: translate(-50%, -50%) rotateX(62deg);
+}
+
+.stack-rings span:nth-child(1) { width: 22rem; height: 8rem; }
+.stack-rings span:nth-child(2) { width: 28rem; height: 10rem; border-color: color-mix(in oklab, var(--color-red) 30%, transparent); }
+.stack-rings span:nth-child(3) { width: 34rem; height: 12rem; }
+
+.stack-fall-pins {
+  position: absolute;
+  top: 18%;
+  left: 18%;
+  width: 64%;
+  height: 48%;
+}
+
+.stack-fall-pin {
+  position: absolute;
+  min-height: 2.75rem;
+  padding: 0 0.45rem;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  color: var(--color-cyan);
+}
+
+.stack-fall-pin.is-city,
+.stack-fall-pin.is-on {
+  color: var(--color-red);
+}
+
+@media (max-width: 640px) {
+  .stack-tick-label {
+    display: none;
+  }
+  .stack-rail {
+    left: 0.15rem;
   }
 }
