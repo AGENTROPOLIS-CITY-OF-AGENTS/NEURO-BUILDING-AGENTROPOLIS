@@ -10,6 +10,7 @@ VERITY has NOT independently reviewed or certified this branch, the spatial prot
 - Evidence record commit: `0c7987ce6a7ee739e75ad21d427bcee98c1baf44`
 - Measured head, and the commit the first fresh Codex request saw: `64e1e874c6c3c413caf1c74e7db9be4680cb6231`
 - SHA under review: that commit plus this documentation line. The PR head after this file lands is the tree Codex should review. Header behavior was measured at `64e1e874c6c3c413caf1c74e7db9be4680cb6231`.
+- Laptop-width breakpoint commit: `ad98fa1784bb31ac856fde87aa1924f34ee52648`. Inline cluster from 1152px. This documentation commit is the PR head that records it.
 - VERITY has NOT independently reviewed or certified anything. Until VERITY replies, nothing here is accepted.
 
 ## What is in the branch

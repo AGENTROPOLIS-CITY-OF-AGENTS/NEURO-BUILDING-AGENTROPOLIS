@@ -204,6 +204,8 @@ The floor dock (`.hero-dock`) is still an `overflow-x: auto` scroller. That is p
 
 ## Laptop width check
 
+Breakpoint commit: `ad98fa1784bb31ac856fde87aa1924f34ee52648`.
+
 Compared `8ec5088af14149ce534cf0460e6e99419dfbdb1a` (always-inline cluster) with `e272cda3924f4b8a8cb7fff13bf26df62f3645ac` (switch at 1280px) at 1024×768, 1152×864, 1279×800, 1280×800, and 1366×768. `scrollWidth` equalled `innerWidth` at every size on both heads, because the page root is `overflow-hidden`. Fit was judged from control rects, wordmark overflow, and intersection with the logo and the nav row.
 
 On `8ec5088` the inline cluster does not fit at 1024. The title `AGENTROPOLIS` is 188px and the wordmark box is squeezed to 132px, so 56px of the title overflows toward `.dev`. Find still ends at x=1000, inside the 1024px viewport, and the nav row is not clipped. At 1152 the title box is the full 188px, the gap from the wordmark to `.dev` is 43px, Find ends at 1128 (24px padding remaining), and nothing overlaps the logo or the nav. 1279, 1280, and 1366 have the same clean inline row with larger gaps (170, 171, and 257px).
