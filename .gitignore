@@ -15,6 +15,7 @@ dist/
 .project_id
 .node_modules.lock
 AGENTS.md
+!scripts/fixtures/AGENTS.md
 startup.sh
 /tmp/
 *.local

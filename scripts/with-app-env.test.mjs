@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -24,6 +24,15 @@ function makeWorkspace(appEnvJson) {
     writeFileSync(join(root, APP_ENV_REL_PATH), appEnvJson);
   }
   return root;
+}
+
+/** Copy the wrapper into a temp workspace so projectRoot() is that fixture, not this repo. */
+function wrapperIn(root) {
+  const scripts = join(root, "scripts");
+  mkdirSync(scripts, { recursive: true });
+  const script = join(scripts, "with-app-env.mjs");
+  copyFileSync(WRAPPER, script);
+  return script;
 }
 
 test("keeps VITE_-prefixed string entries", () => {
@@ -59,8 +68,20 @@ test("an explicit process-env override wins over the file", () => {
   assert.equal(merged.PATH, "/usr/bin");
 });
 
-test("the template ships auth off", () => {
-  assert.deepEqual(readAppEnv(projectRoot()), { VITE_AUTH_ENABLED: "false" });
+test("the live tree ships no app-env; a fixture can record auth off", async () => {
+  assert.deepEqual(readAppEnv(makeWorkspace('{"VITE_AUTH_ENABLED":"false"}')), {
+    VITE_AUTH_ENABLED: "false",
+  });
+  // Missing file leaves the flag unset. client.ts treats that as auth on.
+  assert.deepEqual(readAppEnv(projectRoot()), {});
+  const env = { ...process.env };
+  delete env.VITE_AUTH_ENABLED;
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [WRAPPER, process.execPath, "-e", PRINT_FLAG],
+    { env },
+  );
+  assert.equal(stdout, "undefined");
 });
 
 test("vite loadEnv resolves the wrapped value", () => {
@@ -74,8 +95,9 @@ test("vite loadEnv resolves the wrapped value", () => {
 });
 
 test("the wrapped command runs with the app env applied", async () => {
+  const root = makeWorkspace('{"VITE_AUTH_ENABLED":"false"}');
   const { stdout } = await execFileAsync(process.execPath, [
-    WRAPPER,
+    wrapperIn(root),
     process.execPath,
     "-e",
     PRINT_FLAG,
@@ -84,9 +106,10 @@ test("the wrapped command runs with the app env applied", async () => {
 });
 
 test("the wrapped command sees an explicit override, not the file value", async () => {
+  const root = makeWorkspace('{"VITE_AUTH_ENABLED":"false"}');
   const { stdout } = await execFileAsync(
     process.execPath,
-    [WRAPPER, process.execPath, "-e", PRINT_FLAG],
+    [wrapperIn(root), process.execPath, "-e", PRINT_FLAG],
     { env: { ...process.env, VITE_AUTH_ENABLED: "true" } },
   );
   assert.equal(stdout, "true");
@@ -116,8 +139,10 @@ test("a signal-killed command is never reported as success", async () => {
 test("the CLI still runs when invoked through a symlinked path", async () => {
   // node realpaths import.meta.url but not process.argv[1], so a raw comparison
   // turns the wrapper into a no-op that exits 0 without starting anything.
+  const root = makeWorkspace('{"VITE_AUTH_ENABLED":"false"}');
+  wrapperIn(root);
   const link = join(mkdtempSync(join(tmpdir(), "app-env-link-")), "scripts");
-  symlinkSync(join(projectRoot(), "scripts"), link);
+  symlinkSync(join(root, "scripts"), link);
   const { stdout } = await execFileAsync(process.execPath, [
     join(link, "with-app-env.mjs"),
     process.execPath,
