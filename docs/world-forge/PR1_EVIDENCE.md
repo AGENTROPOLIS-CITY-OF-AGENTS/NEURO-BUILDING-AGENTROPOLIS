@@ -5,7 +5,8 @@ Prototype, simulated, not production. Not merged. Not deployed.
 Parent: `a98a4ae92b6fb92af5ec2ac8271780378e9f6c1e` on `feat/world-stack`.
 Branch: `feat/world-forge-spatial-slice`.
 Implementation commit: `50244ca971d61bc82d8252053dc8a8804aac7f48`.
-This document is the next commit on that branch. Its SHA is recorded in the pull request commit list (`git log --oneline a98a4ae92b6fb92af5ec2ac8271780378e9f6c1e..HEAD`).
+Evidence document commit: `dbc2e8ab4c39d7b1bb7641f46c0011ad6b17d61e`.
+The commit that writes this SHA into the file is the tip after that. `git log --oneline a98a4ae92b6fb92af5ec2ac8271780378e9f6c1e..HEAD` is the full list.
 
 The interactive city is not complete. This slice is an orbit of a static district massing. It has no vehicles, physics, navmesh, walkers, CityDrive, autonomous agents, live ATG, governance execution, or WORLDQ.
 
