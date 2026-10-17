@@ -53,8 +53,9 @@ The numbers in the earlier browser table are the pre-fix run. This section is th
 | `src/lib/git-city/layout.test.ts` | New. 141 lines. 6 tests. |
 | `src/components/git-city/parts.tsx` | New. 406 lines. Street, sidewalk, facades, doors, window bays, district silhouettes. |
 | `src/components/git-city/git-city-world.tsx` | New. 121 lines. R3F canvas, orbit, context-loss overlay. |
-| `src/components/city-os.tsx` | Lazy import and `?forge=1` / Forge button. CityWorld stays the default. |
-| `package.json` | Test script prepends `src/lib/git-city/layout.test.ts`. No dependency changes. |
+| `src/components/city-os.tsx` | Lazy import and `?forge=1` / Forge button. CityWorld stays the default. Below 1280px the header controls move into a Menu disclosure; the 1440px cluster is unchanged. |
+| `src/components/city-os.header.test.ts` | New. Source contract for the desktop cluster, the mobile disclosure, and the wrapping panel. |
+| `package.json` | Test script prepends `src/lib/git-city/layout.test.ts` and `src/components/city-os.header.test.ts`. No dependency changes. |
 
 Not changed: `src/routes/**`, `src/routeTree.gen.ts`, `src/lib/auth/**`, `src/lib/grid.ts`, `src/components/city-world.tsx`, `.grok/app-env.json` (not created).
 
@@ -155,6 +156,50 @@ Actual effort is the diff, not a calendar estimate. Token estimates in the gate 
 | T7 | `webglcontextlost` calls `preventDefault`. Overlay while lost. Canvas stays mounted. Restore hides the overlay. | Both profiles in `BENCHMARK.json`. |
 | T8 | Test path appended in front of the existing script so a layout failure stops the run, and the old 16 failures still print. Evidence harness is an artifact, not a CI workflow. | This document. |
 
+## Header overflow follow-up
+
+Codex reviewed `278dbfca1b0fcb739cd03e520822964127e307fc` and left one unresolved P2 on `src/components/city-os.tsx` (review comment 4301865040). At 390px the compute selector, ambient, Forge, Film, Find, and the logo shared one row. The page root is `overflow-hidden`, so `documentElement.scrollWidth` stayed equal to `innerWidth` while the controls were clipped. Before stills, head `8ec5088af14149ce534cf0460e6e99419dfbdb1a`:
+
+- `/opt/cursor/artifacts/screenshots/header-before-320.png`
+- `/opt/cursor/artifacts/screenshots/header-before-375.png`
+- `/opt/cursor/artifacts/screenshots/header-before-390.png`
+- `/opt/cursor/artifacts/screenshots/header-before-tablet.png`
+- `/opt/cursor/artifacts/screenshots/header-before-desktop.png`
+
+Metrics: `/opt/cursor/artifacts/pr1/header-before.json`. Consoles: `/opt/cursor/artifacts/pr1/header-before-*-console.txt`.
+
+The fix keeps the original control cluster in `[data-header-desktop]` with `hidden … xl:flex`, so 1440×900 is the same row. Below 1280px a Forge button stays in the bar and a Menu button (`aria-expanded`, `aria-controls="os-header-tools"`) opens a wrapping panel with compute, ambient, Film, Find, and, where they already showed (the `.dev` link and Studio rail from `md`, the data-mode label from `sm`), those controls too. Escape returns focus to Menu. A pointer outside the button and the panel closes it. Auth and routes were not edited.
+
+After the fix, `scrollWidth === innerWidth` and no visible header control rect crossed the viewport at 320, 375, 390, 768, and 1440. Closed and open shots:
+
+- `/opt/cursor/artifacts/screenshots/header-after-320.png` and `header-after-320-open.png`
+- `/opt/cursor/artifacts/screenshots/header-after-375.png` and `header-after-375-open.png`
+- `/opt/cursor/artifacts/screenshots/header-after-390.png` and `header-after-390-open.png`
+- `/opt/cursor/artifacts/screenshots/header-after-tablet.png` and `header-after-tablet-open.png`
+- `/opt/cursor/artifacts/screenshots/header-after-desktop.png` (desktop cluster, no Menu)
+
+Refresh metrics: `/opt/cursor/artifacts/pr1/header-after-refresh.json`.
+
+Keyboard, after hydration, at 390: Enter on Menu sets `aria-expanded` true and moves focus to the first compute button; Escape closes the panel and returns focus to Menu; Enter on FULL sets compute to `full`. An earlier probe that pressed Enter before hydration did not toggle and is not the result.
+
+Mobile nav recording (enter the city, open Menu, choose LITE, open Forge, touch-orbit): `/opt/cursor/artifacts/recordings/header-mobile-nav.webm` (9.68 s). Spatial walkthrough on `/?forge=1`: `/opt/cursor/artifacts/recordings/header-spatial-walkthrough.webm` (15.96 s). Console: `/opt/cursor/artifacts/pr1/header-interaction-console.txt` (no page errors). Perf JSON: `/opt/cursor/artifacts/pr1/header-perf.json`.
+
+SwiftShader, Chrome `--use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader`, renderer `ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)`. This pass is a 12 s frame window, not a replacement of the ~30 s ceiling run above. Device is this VM's software GL.
+
+| Check | Desktop 1440×900 adaptive | Mobile 390×844 lite |
+| --- | --- | --- |
+| Navigation → canvas | 1049 ms | 1361 ms |
+| FPS / p50 / p95 / p99 | 4.748 / 233.3 / 449.9 / 450 ms | 22.146 / 49.9 / 83.4 / 116.7 ms |
+| `performance.memory` used | 79,008,527 | 78,329,439 |
+| CDP heap used | 46,780,456 | 46,151,220 |
+| WebGL2 | yes, antialias on | yes, antialias off |
+
+`full`: one WebGL2 canvas, antialias on, compute `full`. `minimum` with `?forge=1`: canvas count 0, no forge scene. Default `/` before Enter: canvas count 0. After Enter: one CityWorld canvas, forge scene false, compute lite on that phone profile. Opening Forge from the mobile bar mounts the slice (one canvas, label `PROTOTYPE · SIMULATED`). A pointer outside the open panel sets `aria-expanded` back to false. The post-reload adaptive renderer read was UNKNOWN because it ran before `getParameter`; the primary desktop sample above is the renderer string. No phone GPU was measured.
+
+Commands after this edit: `tsc --noEmit` exit 0. `eslint .` exit 1, still 3 errors and 7 warnings (the city-os warning is still the pre-existing missing `view` dependency). `npm test` exit 1: header + layout 10 pass / 0 fail, then script tests 179 pass / 16 fail / 0 skipped. The 16 names are unchanged: 27, 28, 29, 79, 89, 101, 105, 106, 107, 109, 110, 113, 178, 180, 184, 194. The `&&` chain still stops before `src/lib/app-data` and `src/lib/auth`; those 45 tests were run separately and passed 45 / 0. Nothing new failed. Build exit 0. `city-world` 16,672 bytes, `git-city-world` 19,567 bytes, `cine-lights` 890,424 bytes. No new dependency.
+
+The floor dock (`.hero-dock`) is still an `overflow-x: auto` scroller. That is pre-existing and is not the header P2.
+
 ## VERITY review request
 
 Please review this branch against `PROTOTYPE_ACCEPTANCE_SPEC.md` and the T1–T8 rows. In particular:
@@ -167,4 +212,4 @@ Please review this branch against `PROTOTYPE_ACCEPTANCE_SPEC.md` and the T1–T8
 6. Are auth, routes, and `VITE_AUTH_ENABLED` untouched, with no `.grok/app-env.json`?
 7. Is CityWorld still the default when forge is closed?
 
-This is not a request to merge or deploy. The orbit prototype is not a finished interactive city.
+This is not a request to merge or deploy. The orbit prototype is not a finished interactive city. VERITY has not independently reviewed or certified this branch. The handoff is `docs/world-forge/VERITY_HANDOFF.md`.

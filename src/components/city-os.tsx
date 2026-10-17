@@ -63,6 +63,8 @@ export function CityOS() {
   const [campusFocus, setCampusFocus] = useState<string | null>(null);
   const [cityInside, setCityInside] = useState<string | null>(null);
   const [forgeOpen, setForgeOpen] = useState(false);
+  const [headerTools, setHeaderTools] = useState(false);
+  const headerToolsButton = useRef<HTMLButtonElement>(null);
   const [focusAgent, setFocusAgent] = useState<string | null>(null);
   const [compute, setCompute, cityGfx] = useCompute();
   const [World, setWorld] = useState<ComponentType<{
@@ -300,6 +302,11 @@ export function CityOS() {
         return;
       }
       if (e.key === "Escape") {
+        if (headerTools) {
+          setHeaderTools(false);
+          headerToolsButton.current?.focus();
+          return;
+        }
         if (palette) {
           setPalette(false);
           setMode("city");
@@ -346,7 +353,23 @@ export function CityOS() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [palette, filmOpen, mode, selected, cityInside, focusAgent]);
+  }, [palette, filmOpen, mode, selected, cityInside, focusAgent, headerTools]);
+
+  useEffect(() => {
+    if (!headerTools) return;
+    const panel = document.getElementById("os-header-tools");
+    const first = panel?.querySelector("button");
+    if (first instanceof HTMLElement) first.focus();
+    const onPointer = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (headerToolsButton.current?.contains(target)) return;
+      if (panel?.contains(target)) return;
+      setHeaderTools(false);
+    };
+    document.addEventListener("pointerdown", onPointer);
+    return () => document.removeEventListener("pointerdown", onPointer);
+  }, [headerTools]);
 
   useEffect(() => {
     if (palette) {
@@ -749,11 +772,11 @@ export function CityOS() {
               className="min-w-0 text-left"
               aria-label="Return to city"
             >
-              <p className="os-wordmark font-display text-sm font-semibold tracking-[0.22em] sm:text-base">{SITE_TITLE}</p>
+              <p className="os-wordmark max-xl:truncate font-display text-sm font-semibold tracking-[0.22em] sm:text-base">{SITE_TITLE}</p>
               <p className="hidden text-2xs tracking-[0.14em] text-mute uppercase sm:block">{SITE_TAGLINE}</p>
             </button>
           </div>
-          <div className="flex items-center gap-2">
+          <div data-header-desktop className="hidden items-center gap-2 xl:flex">
             <a
               href="https://agentropolis.dev"
               target="_blank"
@@ -820,6 +843,98 @@ export function CityOS() {
               <kbd className="hidden rounded-sm px-1.5 py-0.5 font-mono text-2xs text-mute shadow-[var(--shadow-border)] md:inline">/</kbd>
             </button>
           </div>
+          <div data-header-mobile className="flex shrink-0 items-center gap-1 xl:hidden">
+            {mode !== "start" ? (
+              <button
+                type="button"
+                data-forge-open={forgeOpen ? undefined : ""}
+                data-forge-close={forgeOpen ? "" : undefined}
+                aria-pressed={forgeOpen}
+                onClick={() => setForgeOpen((open) => !open)}
+                className="inline-flex h-11 items-center rounded-md px-2 text-xs tracking-[0.12em] text-cyan shadow-[var(--shadow-border)]"
+              >
+                {forgeOpen ? "City" : "Forge"}
+              </button>
+            ) : null}
+            <button
+              type="button"
+              ref={headerToolsButton}
+              data-header-tools
+              aria-expanded={headerTools}
+              aria-controls="os-header-tools"
+              onClick={() => setHeaderTools((open) => !open)}
+              className="inline-flex h-11 items-center rounded-md px-2 text-xs tracking-[0.12em] text-cyan shadow-[var(--shadow-border)]"
+            >
+              {headerTools ? "Close" : "Menu"}
+            </button>
+          </div>
+        </div>
+        <div
+          id="os-header-tools"
+          data-header-tools-panel
+          role="region"
+          aria-label="Header controls"
+          hidden={!headerTools}
+          className="flex max-w-full flex-wrap items-center gap-2 px-4 pb-2 xl:hidden"
+        >
+          <a
+            href="https://agentropolis.dev"
+            target="_blank"
+            rel="noreferrer"
+            data-dest="host-agentropolis"
+            title="AGENTROPOLIS · agentropolis.dev · LIVE"
+            className="hidden h-11 items-center px-1.5 font-mono text-2xs tracking-[0.08em] text-cyan md:inline-flex hover:text-red"
+          >
+            .dev
+          </a>
+          {mode !== "start" ? <StudioRail className="max-w-full flex-wrap" /> : null}
+          {mode !== "start" ? <ComputeDock value={compute} onChange={setCompute} className="max-w-full flex-wrap" /> : null}
+          {mode !== "start" ? (
+            <span className="hidden h-8 items-center rounded-sm px-2 font-mono text-2xs tracking-[0.14em] text-cyan shadow-[var(--shadow-border)] sm:inline-flex">
+              {DATA_MODE}
+            </span>
+          ) : null}
+          <button
+            type="button"
+            data-ambient
+            onClick={() => {
+              setAmbientMuted((v) => {
+                const next = !v;
+                window.localStorage.setItem("agentropolis-ambient", next ? "off" : "on");
+                return next;
+              });
+            }}
+            className="inline-flex h-11 items-center gap-2 rounded-md px-3 text-xs tracking-[0.12em] text-cyan shadow-[var(--shadow-border)]"
+            aria-label={ambientMuted ? "Unmute ambient" : "Mute ambient"}
+          >
+            {ambientMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+            Ambient
+          </button>
+          <button
+            type="button"
+            data-film
+            data-film-header
+            onClick={() => {
+              setHeaderTools(false);
+              playFilm("open");
+            }}
+            className="inline-flex h-11 items-center gap-2 rounded-md px-3 text-xs tracking-[0.12em] text-cyan shadow-[var(--shadow-border)]"
+          >
+            <Play className="size-3.5" fill="currentColor" />
+            Film
+          </button>
+          <button
+            type="button"
+            data-command
+            onClick={() => {
+              setHeaderTools(false);
+              setFloor("find");
+            }}
+            className="inline-flex h-11 items-center gap-2 rounded-md px-3 text-xs tracking-[0.12em] text-cyan shadow-[var(--shadow-border)]"
+          >
+            <Search className="size-4" />
+            Find
+          </button>
         </div>
         {mode === "start" ? null : (
         <nav className="hidden gap-1 overflow-x-auto px-4 pb-2 md:flex sm:px-6" aria-label="City navigation">
