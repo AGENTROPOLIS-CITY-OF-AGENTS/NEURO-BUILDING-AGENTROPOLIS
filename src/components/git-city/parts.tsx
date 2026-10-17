@@ -73,14 +73,19 @@ function BayField({
   );
 }
 
-export function StreetBlock() {
+export function StreetBlock({ horizon = 20 }: { horizon?: number }) {
   const layout = useMemo(() => buildLayout(), []);
   return (
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow={false}>
-        <planeGeometry args={[180, 180]} />
-        <meshStandardMaterial color={OBSIDIAN} roughness={0.92} metalness={0.08} />
+        <planeGeometry args={[320, 320]} />
+        <meshStandardMaterial color="#101820" roughness={0.94} metalness={0.06} />
       </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.006, 0]}>
+        <circleGeometry args={[52, 64]} />
+        <meshStandardMaterial color="#18222e" roughness={0.86} metalness={0.12} />
+      </mesh>
+      <Horizon count={horizon} />
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[layout.plaza.x, 0.012, layout.plaza.z]}>
         <planeGeometry args={[layout.plaza.w, layout.plaza.d]} />
         <meshStandardMaterial color="#10151c" roughness={0.7} metalness={0.24} />
@@ -96,18 +101,18 @@ export function StreetBlock() {
       {layout.roads.map((slab) => (
         <mesh key={slab.id} rotation={[-Math.PI / 2, 0, 0]} position={[slab.x, 0.025, slab.z]}>
           <planeGeometry args={[slab.w, slab.d]} />
-          <meshStandardMaterial color="#0b1016" roughness={0.55} metalness={0.48} emissive={OBSIDIAN} emissiveIntensity={0.4} />
+          <meshStandardMaterial color="#243044" roughness={0.62} metalness={0.28} />
         </mesh>
       ))}
       {layout.sidewalks.map((slab) => (
         <mesh key={slab.id} rotation={[-Math.PI / 2, 0, 0]} position={[slab.x, 0.055, slab.z]}>
           <planeGeometry args={[slab.w, slab.d]} />
-          <meshStandardMaterial color="#1b232e" roughness={0.78} metalness={0.16} />
+          <meshStandardMaterial color="#3a4658" roughness={0.8} metalness={0.1} />
         </mesh>
       ))}
       {layout.lanes.map((slab) => (
         <mesh key={slab.id} rotation={[-Math.PI / 2, 0, 0]} position={[slab.x, 0.04, slab.z]}>
-          <planeGeometry args={[slab.w, slab.d]} />
+          <planeGeometry args={[Math.max(slab.w, 0.34), Math.max(slab.d, 0.34)]} />
           <meshBasicMaterial color={slab.accent === "red" ? RED : CYAN} toneMapped={false} />
         </mesh>
       ))}
@@ -117,6 +122,37 @@ export function StreetBlock() {
       <Crosswalk x={-16} z={0} axis="x" />
       <Lamps />
     </group>
+  );
+}
+
+/** Distant masses outside the orbit clamp, so the horizon is a skyline instead of a void. */
+function Horizon({ count }: { count: number }) {
+  const ref = useRef<THREE.InstancedMesh>(null);
+  useLayoutEffect(() => {
+    const mesh = ref.current;
+    if (!mesh) return;
+    const dummy = new THREE.Object3D();
+    for (let index = 0; index < count; index += 1) {
+      const angle = (index / count) * Math.PI * 2 + 0.17;
+      const radius = 74 + (index % 4) * 3.5;
+      const height = 7 + ((index * 5) % 16);
+      const width = 3.4 + (index % 3) * 1.1;
+      dummy.position.set(Math.cos(angle) * radius, height / 2, Math.sin(angle) * radius);
+      dummy.scale.set(width, height, width * 0.66);
+      dummy.rotation.set(0, -angle, 0);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(index, dummy.matrix);
+    }
+    mesh.count = count;
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.computeBoundingSphere();
+  }, [count]);
+  if (count < 1) return null;
+  return (
+    <instancedMesh ref={ref} args={[undefined, undefined, count]} frustumCulled={false}>
+      <boxGeometry args={[1, 1, 1]} />
+      <meshStandardMaterial color="#0c141c" emissive={CYAN} emissiveIntensity={0.06} roughness={0.72} metalness={0.35} />
+    </instancedMesh>
   );
 }
 

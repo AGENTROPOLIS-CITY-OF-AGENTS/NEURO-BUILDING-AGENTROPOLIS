@@ -10,6 +10,41 @@ Evidence document commit: `dbc2e8ab4c39d7b1bb7641f46c0011ad6b17d61e` (SHA line w
 
 The interactive city is not complete. This slice is an orbit of a static district massing. It has no vehicles, physics, navmesh, walkers, CityDrive, autonomous agents, live ATG, governance execution, or WORLDQ.
 
+## Framing follow-up
+
+The first desktop after-orbit still failed the visual bar: the orbit target sat on the north roadway, pan was enabled, and `minDistance` was 8, so a drag clipped into two facades and left a black field with stray road lines. Mobile was closer to a street view.
+
+The camera now opens on an elevated three-quarter view of the district. The orbit target is the block (`[0, 2.4, 0]` on desktop, `[0, 3.2, -6]` on a portrait frame). Pan is off, so arrow keys orbit instead of sliding the target into empty space. Distance and polar angle are clamped so the camera stays outside the buildings and keeps the ground in frame. The ground plane and a district pad read darker than the clear color, lane markings are thicker, and a fogged skyline sits outside the orbit clamp. CineLights still runs; its 22–110 fog is widened to 84–176 so the whole block is not swallowed.
+
+SwiftShader remeasure, same ceilings, same Chrome flags, `/?forge=1`, 2026-10-17. Renderer remains `ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)`. These are software-rendering regression checks, not phone or discrete-GPU numbers.
+
+| Gate | Ceiling | Desktop 1440×900 adaptive | Mobile 390×844 lite, touch, dsf 2 |
+| --- | --- | --- | --- |
+| Navigation → first GL | 4986 / 3552 ms | 2195 ms | 1291 ms |
+| FPS | min 2.98 / 15.51 | 3.694 | 20.084 |
+| Frame p50 / p95 / p99 | 375/725/825 and 75/125/175 ms | 266.7 / 516.7 / 616.7 | 50 / 99.9 / 116.7 |
+| `performance.memory` after orbit | 127,780,119 / 121,110,065 | 81,456,243 | 78,624,480 |
+| CDP heap after orbit | 79,388,166 / 72,728,820 | 49,252,572 | 46,461,648 |
+| WebGL2 lose / restore | required on both | lost, `defaultPrevented`, restored, canvas stayed mounted | same |
+
+Keyboard orbit delta 32.9. Pointer orbit delta 30.2 desktop, 30.1 mobile. `full` still one antialiased WebGL2 canvas. `minimum` + `?forge=1` canvas count 0 and no `git-city` request.
+
+Regenerated stills (initial and after orbit):
+
+- `/opt/cursor/artifacts/screenshots/pr1-desktop-1440x900.png`
+- `/opt/cursor/artifacts/screenshots/pr1-desktop-after-orbit.png`
+- `/opt/cursor/artifacts/screenshots/pr1-mobile-390x844.png`
+- `/opt/cursor/artifacts/screenshots/pr1-mobile-after-orbit.png`
+
+Walkthroughs replaced in place:
+
+- `/opt/cursor/artifacts/recordings/pr1-desktop-walkthrough.webm`
+- `/opt/cursor/artifacts/recordings/pr1-mobile-walkthrough.webm`
+
+Commands after the framing edit: typecheck exit 0 (6.194s), lint exit 1 with the same 3 errors and 7 warnings (2.256s), `npm test` exit 1 with layout 6/6 then 179 pass / 16 fail / 0 skipped (0.639s), build exit 0 (2.188s). `city-world` chunk 16,672 bytes. `git-city-world` chunk 19,567 bytes. `cine-lights` chunk 890,424 bytes. Migrate skipped.
+
+The numbers in the earlier browser table are the pre-fix run. This section is the one that matches the stills.
+
 ## Changed files
 
 | Path | Change |
@@ -115,7 +150,7 @@ Actual effort is the diff, not a calendar estimate. Token estimates in the gate 
 | T2 | `parts.tsx` and `git-city-world.tsx` on the existing R3F 9 / three 0.185 path. Colors from `GRID_COLORS`. `CineLights` reused. No new package. No second Three chunk (`cine-lights` still 890,424 bytes). | Typecheck 0. Build emits `city-world` and one new scene chunk. |
 | T3 | Podium, shaft, cornice, separate door frame and dark door panel, separate window bays, pinned silhouettes (spire, crown, crane, bunker, fins, mast) and codes MC, HX, DK, AG, HF, S6. | Stills above. Not a texture wrapped on one cube. |
 | T4 | Origins are an id-keyed table. `originById.mission.x` is 0. The building order is not alphabetical. Covered ids match `DISTRICTS`. `grid.ts` was not edited. The new scene does not call `enterBuilding`, so `utility` / `street` / `holofoil` are not given a new enter path. Selecting one still uses the existing district select. | Layout tests. |
-| T5 | drei `OrbitControls`, `touchAction: "none"`, canvas `tabIndex` 0. Arrow keys use `listenToKeyEvents` because drei's `keyEvents` prop calls `connect`, which does not register keys. | Keyboard delta, mouse delta, touch delta, two webms. |
+| T5 | drei `OrbitControls`, `touchAction: "none"`, canvas `tabIndex` 0. Pan is disabled. Arrow keys orbit the district target inside the polar and distance clamps, because drei's `keyEvents` prop only calls `connect` and the stock key handler pans. | Framing follow-up stills and walkthroughs. Keyboard delta 32.9, pointer deltas about 30. |
 | T6 | Import runs only when forge is open and compute is not `minimum` and mode is not `start` or `world`. The `alive` flag drops a late resolution. | Four loads above. Minimum made zero `git-city` requests. |
 | T7 | `webglcontextlost` calls `preventDefault`. Overlay while lost. Canvas stays mounted. Restore hides the overlay. | Both profiles in `BENCHMARK.json`. |
 | T8 | Test path appended in front of the existing script so a layout failure stops the run, and the old 16 failures still print. Evidence harness is an artifact, not a CI workflow. | This document. |
