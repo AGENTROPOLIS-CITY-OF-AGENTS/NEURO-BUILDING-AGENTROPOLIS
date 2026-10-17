@@ -170,7 +170,7 @@ Codex reviewed `278dbfca1b0fcb739cd03e520822964127e307fc` and left one unresolve
 
 Metrics: `/opt/cursor/artifacts/pr1/header-before.json`. Consoles: `/opt/cursor/artifacts/pr1/header-before-*-console.txt`.
 
-The fix keeps the original control cluster in `[data-header-desktop]` with `hidden … xl:flex`, so 1440×900 is the same row. Below 1280px a Forge button stays in the bar and a Menu button (`aria-expanded`, `aria-controls="os-header-tools"`) opens a wrapping panel with compute, ambient, Film, Find, and, where they already showed (the `.dev` link and Studio rail from `md`, the data-mode label from `sm`), those controls too. Escape returns focus to Menu. A pointer outside the button and the panel closes it. Auth and routes were not edited.
+The fix keeps the original control cluster in `[data-header-desktop]`. It first used `xl:flex` (1280px). The laptop-width check below moved that switch to 1152px. 1440×900 is still the original row. Below the switch, a Forge button stays in the bar and a Menu button (`aria-expanded`, `aria-controls="os-header-tools"`) opens a wrapping panel with compute, ambient, Film, Find, and, where they already showed (the `.dev` link and Studio rail from `md`, the data-mode label from `sm`), those controls too. Escape returns focus to Menu. A pointer outside the button and the panel closes it. Auth and routes were not edited.
 
 After the fix, `scrollWidth === innerWidth` and no visible header control rect crossed the viewport at 320, 375, 390, 768, and 1440. Closed and open shots:
 
@@ -201,6 +201,48 @@ SwiftShader, Chrome `--use-gl=angle --use-angle=swiftshader --enable-unsafe-swif
 Commands after this edit: `tsc --noEmit` exit 0. `eslint .` exit 1, still 3 errors and 7 warnings (the city-os warning is still the pre-existing missing `view` dependency). `npm test` exit 1: header + layout 10 pass / 0 fail, then script tests 179 pass / 16 fail / 0 skipped. The 16 names are unchanged: 27, 28, 29, 79, 89, 101, 105, 106, 107, 109, 110, 113, 178, 180, 184, 194. The `&&` chain still stops before `src/lib/app-data` and `src/lib/auth`; those 45 tests were run separately and passed 45 / 0. Nothing new failed. Build exit 0. `city-world` 16,672 bytes, `git-city-world` 19,567 bytes, `cine-lights` 890,424 bytes. No new dependency.
 
 The floor dock (`.hero-dock`) is still an `overflow-x: auto` scroller. That is pre-existing and is not the header P2.
+
+## Laptop width check
+
+Compared `8ec5088af14149ce534cf0460e6e99419dfbdb1a` (always-inline cluster) with `e272cda3924f4b8a8cb7fff13bf26df62f3645ac` (switch at 1280px) at 1024×768, 1152×864, 1279×800, 1280×800, and 1366×768. `scrollWidth` equalled `innerWidth` at every size on both heads, because the page root is `overflow-hidden`. Fit was judged from control rects, wordmark overflow, and intersection with the logo and the nav row.
+
+On `8ec5088` the inline cluster does not fit at 1024. The title `AGENTROPOLIS` is 188px and the wordmark box is squeezed to 132px, so 56px of the title overflows toward `.dev`. Find still ends at x=1000, inside the 1024px viewport, and the nav row is not clipped. At 1152 the title box is the full 188px, the gap from the wordmark to `.dev` is 43px, Find ends at 1128 (24px padding remaining), and nothing overlaps the logo or the nav. 1279, 1280, and 1366 have the same clean inline row with larger gaps (170, 171, and 257px).
+
+On `e272cda`, 1024, 1152, and 1279 use the Menu. Closed and open, no header control crosses the viewport and none intersects the logo or the nav. 1280 and 1366 already show the inline cluster and match the pre-fix fit. The 1280 switch was leaving a fitting row behind a menu at 1152 and 1279.
+
+The switch is now `min-[1152px]`, the smallest measured width where the inline cluster fits with that margin. 1024 stays on the Menu. 1440×900 still shows the original cluster (gap to `.dev` 331px). 320, 375, and 390 still use the Menu, closed and open, with `scrollWidth === innerWidth` and no clipped header control.
+
+Metrics: `/opt/cursor/artifacts/pr1/header-laptop-8ec5088.json`, `header-laptop-e272cda.json`, `header-laptop-1152bp.json`.
+
+Stills, pre-fix inline cluster:
+
+- `/opt/cursor/artifacts/screenshots/header-laptop-8ec5088-1024x768-closed.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-8ec5088-1152x864-closed.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-8ec5088-1279x800-closed.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-8ec5088-1280x800-closed.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-8ec5088-1366x768-closed.png`
+
+Stills, 1280px switch (`e272cda`), closed and open where the menu exists:
+
+- `/opt/cursor/artifacts/screenshots/header-laptop-e272cda-1024x768-closed.png` and `header-laptop-e272cda-1024x768-open.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-e272cda-1152x864-closed.png` and `header-laptop-e272cda-1152x864-open.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-e272cda-1279x800-closed.png` and `header-laptop-e272cda-1279x800-open.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-e272cda-1280x800-closed.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-e272cda-1366x768-closed.png`
+
+Stills after the move to 1152px:
+
+- `/opt/cursor/artifacts/screenshots/header-laptop-1152bp-1024x768-closed.png` and `header-laptop-1152bp-1024x768-open.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-1152bp-1152x864-closed.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-1152bp-1279x800-closed.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-1152bp-1280x800-closed.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-1152bp-1366x768-closed.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-1152bp-1440x900-closed.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-1152bp-320x700-closed.png` and `header-laptop-1152bp-320x700-open.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-1152bp-375x812-closed.png` and `header-laptop-1152bp-375x812-open.png`
+- `/opt/cursor/artifacts/screenshots/header-laptop-1152bp-390x844-closed.png` and `header-laptop-1152bp-390x844-open.png`
+
+Commands after the breakpoint edit: `tsc --noEmit` exit 0. `eslint .` exit 1, still 3 errors and 7 warnings. `npm test` exit 1: header + layout 10 pass / 0 fail, then 179 pass / 16 fail / 0 skipped. Same 16 names: 27, 28, 29, 79, 89, 101, 105, 106, 107, 109, 110, 113, 178, 180, 184, 194. The auth files, run separately because `&&` stops on those 16, passed 45 / 0. Build exit 0. Chunk sizes unchanged: `city-world` 16,672, `git-city-world` 19,567, `cine-lights` 890,424. No new dependency. Auth and routes untouched.
 
 ## VERITY review request
 

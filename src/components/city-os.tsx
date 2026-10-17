@@ -772,11 +772,11 @@ export function CityOS() {
               className="min-w-0 text-left"
               aria-label="Return to city"
             >
-              <p className="os-wordmark max-xl:truncate font-display text-sm font-semibold tracking-[0.22em] sm:text-base">{SITE_TITLE}</p>
+              <p className="os-wordmark max-[1151px]:truncate font-display text-sm font-semibold tracking-[0.22em] sm:text-base">{SITE_TITLE}</p>
               <p className="hidden text-2xs tracking-[0.14em] text-mute uppercase sm:block">{SITE_TAGLINE}</p>
             </button>
           </div>
-          <div data-header-desktop className="hidden items-center gap-2 xl:flex">
+          <div data-header-desktop className="hidden items-center gap-2 min-[1152px]:flex">
             <a
               href="https://agentropolis.dev"
               target="_blank"
@@ -843,7 +843,7 @@ export function CityOS() {
               <kbd className="hidden rounded-sm px-1.5 py-0.5 font-mono text-2xs text-mute shadow-[var(--shadow-border)] md:inline">/</kbd>
             </button>
           </div>
-          <div data-header-mobile className="flex shrink-0 items-center gap-1 xl:hidden">
+          <div data-header-mobile className="flex shrink-0 items-center gap-1 min-[1152px]:hidden">
             {mode !== "start" ? (
               <button
                 type="button"
@@ -875,7 +875,7 @@ export function CityOS() {
           role="region"
           aria-label="Header controls"
           hidden={!headerTools}
-          className="flex max-w-full flex-wrap items-center gap-2 px-4 pb-2 xl:hidden"
+          className="flex max-w-full flex-wrap items-center gap-2 px-4 pb-2 min-[1152px]:hidden"
         >
           <a
             href="https://agentropolis.dev"

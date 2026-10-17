@@ -12,9 +12,9 @@ function sliceBetween(start: string, end: string): string {
 }
 
 describe("city header mobile disclosure", () => {
-  it("keeps the desktop cluster intact and hidden below xl", () => {
+  it("keeps the desktop cluster intact and hidden below 1152px", () => {
     const desktop = sliceBetween('data-header-desktop className="', "</div>");
-    assert.match(desktop, /hidden items-center gap-2 xl:flex/);
+    assert.match(desktop, /hidden items-center gap-2 min-\[1152px\]:flex/);
     assert.match(desktop, /ComputeDock/);
     assert.match(desktop, /StudioRail/);
     assert.match(desktop, /data-forge-open/);
@@ -23,9 +23,9 @@ describe("city header mobile disclosure", () => {
     assert.match(desktop, /data-command/);
   });
 
-  it("exposes Forge and an expanded disclosure below xl", () => {
+  it("exposes Forge and an expanded disclosure below 1152px", () => {
     const mobile = sliceBetween('data-header-mobile className="', "</div>");
-    assert.match(mobile, /xl:hidden/);
+    assert.match(mobile, /min-\[1152px\]:hidden/);
     assert.match(mobile, /data-forge-open/);
     assert.match(mobile, /aria-expanded=\{headerTools\}/);
     assert.match(mobile, /aria-controls="os-header-tools"/);
@@ -38,7 +38,7 @@ describe("city header mobile disclosure", () => {
     assert.match(panel, /aria-label="Header controls"/);
     assert.match(panel, /hidden=\{!headerTools\}/);
     assert.match(panel, /flex-wrap/);
-    assert.match(panel, /xl:hidden/);
+    assert.match(panel, /min-\[1152px\]:hidden/);
     assert.match(panel, /<ComputeDock/);
     assert.match(panel, /StudioRail/);
     assert.match(panel, /data-dest="host-agentropolis"/);

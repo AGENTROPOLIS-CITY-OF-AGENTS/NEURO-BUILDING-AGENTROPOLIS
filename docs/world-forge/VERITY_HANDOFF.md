@@ -14,7 +14,7 @@ VERITY has NOT independently reviewed or certified this branch, the spatial prot
 
 ## What is in the branch
 
-A removable orbit prototype of a static district. CityWorld stays the default. `?forge=1` and the Forge control open the slice. Minimum compute does not import it (canvas count 0). The latest remediation compacts the header below 1280px into a Forge button plus a Menu disclosure (`aria-expanded`, `aria-controls="os-header-tools"`, Escape returns focus, outside pointer closes). The 1440px header cluster is the original row.
+A removable orbit prototype of a static district. CityWorld stays the default. `?forge=1` and the Forge control open the slice. Minimum compute does not import it (canvas count 0). The header uses a Forge button plus a Menu disclosure below 1152px (`aria-expanded`, `aria-controls="os-header-tools"`, Escape returns focus, outside pointer closes). From 1152px up, including 1440px, the original inline cluster is shown. 1024px stays on the Menu because the inline title overflows there by 56px.
 
 Orchestrator name, where this repo names one: GrokFleet (interim orchestrator; Hermes pending install, interfaces simulated).
 
