@@ -6,7 +6,8 @@ VERITY has NOT independently reviewed or certified this branch, the spatial prot
 - Branch: `feat/world-forge-spatial-slice`
 - Base: `feat/world-stack`
 - Parent of the slice: `a98a4ae92b6fb92af5ec2ac8271780378e9f6c1e`
-- SHA under review: the PR head after the header remediation push. The header fix commit is recorded below once that commit exists. Until VERITY replies, nothing here is accepted.
+- Header fix commit: `dd8eefebc0e05e20333eb1f9912b93ab6510a8a5`
+- SHA under review: the child of that commit, which only records this SHA and is the PR head. Until VERITY replies, nothing here is accepted.
 
 ## What is in the branch
 
