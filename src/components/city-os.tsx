@@ -62,6 +62,7 @@ export function CityOS() {
   const [compareB, setCompareB] = useState("construct");
   const [campusFocus, setCampusFocus] = useState<string | null>(null);
   const [cityInside, setCityInside] = useState<string | null>(null);
+  const [forgeOpen, setForgeOpen] = useState(false);
   const [focusAgent, setFocusAgent] = useState<string | null>(null);
   const [compute, setCompute, cityGfx] = useCompute();
   const [World, setWorld] = useState<ComponentType<{
@@ -70,6 +71,11 @@ export function CityOS() {
     gfx: CityGfx;
     onSelect: (id: string | null) => void;
     onEnter: (id: string) => void;
+  }> | null>(null);
+  const [GitCity, setGitCity] = useState<ComponentType<{
+    selected: string | null;
+    gfx: CityGfx;
+    onSelect: (id: string | null) => void;
   }> | null>(null);
   const [OsPane, setOsPane] = useState<ComponentType<{
     view: ViewId;
@@ -161,7 +167,15 @@ export function CityOS() {
   }, [filmOpen, ambientMuted]);
 
   useEffect(() => {
-    if (compute === "minimum" || mode === "start" || mode === "world") {
+    if (new URLSearchParams(window.location.search).get("forge") !== "1") return;
+    setForgeOpen(true);
+    setMode("city");
+    setView("city");
+    setFilmOpen(false);
+  }, []);
+
+  useEffect(() => {
+    if (forgeOpen || compute === "minimum" || mode === "start" || mode === "world") {
       setWorld(null);
       return;
     }
@@ -172,7 +186,21 @@ export function CityOS() {
     return () => {
       alive = false;
     };
-  }, [compute, mode]);
+  }, [compute, mode, forgeOpen]);
+
+  useEffect(() => {
+    if (!forgeOpen || compute === "minimum" || mode === "start" || mode === "world") {
+      setGitCity(null);
+      return;
+    }
+    let alive = true;
+    void import("@/components/git-city/git-city-world").then((mod) => {
+      if (alive) setGitCity(() => mod.GitCityWorld);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [forgeOpen, compute, mode]);
 
   useEffect(() => {
     if (view === "city") return;
@@ -513,6 +541,8 @@ export function CityOS() {
     !filmOpen && (view === "observatory" || (view === "city" && mode === "city" && selected === "holofoil"));
   const worldOpen = view === "city" && mode === "world" && !filmOpen;
   const overlayOpen = campusOpen || streetOpen || foilOpen || worldOpen;
+  const showForge =
+    forgeOpen && compute !== "minimum" && cityGfx !== "map" && !overlayOpen && mode !== "start" && mode !== "world" && !filmOpen;
   const trail =
     view === "city" && !filmOpen && mode === "journey"
       ? JOURNEY_TRAIL
@@ -524,7 +554,24 @@ export function CityOS() {
   return (
     <div className="relative h-dvh overflow-hidden bg-obsidian text-paper" data-compute={compute}>
       <div className="absolute inset-0">
-        {cityGfx === "map" || overlayOpen || !World || mode === "start" || filmOpen || mode === "world" ? (
+        {showForge ? (
+          GitCity ? (
+            <GitCity
+              selected={view === "city" ? selected : null}
+              gfx={cityGfx}
+              onSelect={(id) => {
+                if (!id) {
+                  setSelected(null);
+                  setCityInside(null);
+                  return;
+                }
+                pickDistrict(id);
+              }}
+            />
+          ) : (
+            <div className="h-full w-full bg-obsidian" data-forge-loading />
+          )
+        ) : cityGfx === "map" || overlayOpen || !World || mode === "start" || filmOpen || mode === "world" ? (
           mode === "start" || filmOpen || mode === "world" ? (
             <div className="h-full w-full bg-obsidian" />
           ) : (
@@ -735,6 +782,18 @@ export function CityOS() {
             >
               {ambientMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
             </button>
+            {mode !== "start" ? (
+              <button
+                type="button"
+                data-forge-open={forgeOpen ? undefined : ""}
+                data-forge-close={forgeOpen ? "" : undefined}
+                aria-pressed={forgeOpen}
+                onClick={() => setForgeOpen((open) => !open)}
+                className="inline-flex h-11 items-center rounded-md px-2 text-xs tracking-[0.12em] text-cyan shadow-[var(--shadow-border)] transition-transform duration-150 ease-out hover:text-red active:scale-[0.96] sm:px-3"
+              >
+                {forgeOpen ? "City" : "Forge"}
+              </button>
+            ) : null}
             <button
               type="button"
               data-film
