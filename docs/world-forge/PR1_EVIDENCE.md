@@ -158,7 +158,7 @@ Actual effort is the diff, not a calendar estimate. Token estimates in the gate 
 
 ## Header overflow follow-up
 
-Header fix commit: `dd8eefebc0e05e20333eb1f9912b93ab6510a8a5`. Evidence SHA recorded in `0c7987ce6a7ee739e75ad21d427bcee98c1baf44`. The PR head under review is the commit that writes this sentence; the Codex reply names that full SHA.
+Header fix commit: `dd8eefebc0e05e20333eb1f9912b93ab6510a8a5`. Evidence SHA recorded in `0c7987ce6a7ee739e75ad21d427bcee98c1baf44`. Measured head: `64e1e874c6c3c413caf1c74e7db9be4680cb6231`.
 
 Codex reviewed `278dbfca1b0fcb739cd03e520822964127e307fc` and left one unresolved P2 on `src/components/city-os.tsx` (review comment 4301865040). At 390px the compute selector, ambient, Forge, Film, Find, and the logo shared one row. The page root is `overflow-hidden`, so `documentElement.scrollWidth` stayed equal to `innerWidth` while the controls were clipped. Before stills, head `8ec5088af14149ce534cf0460e6e99419dfbdb1a`:
 
