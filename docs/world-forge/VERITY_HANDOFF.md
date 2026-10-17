@@ -7,7 +7,8 @@ VERITY has NOT independently reviewed or certified this branch, the spatial prot
 - Base: `feat/world-stack`
 - Parent of the slice: `a98a4ae92b6fb92af5ec2ac8271780378e9f6c1e`
 - Header fix commit: `dd8eefebc0e05e20333eb1f9912b93ab6510a8a5`
-- SHA under review: the child of that commit, which only records this SHA and is the PR head. Until VERITY replies, nothing here is accepted.
+- Evidence record commit: `0c7987ce6a7ee739e75ad21d427bcee98c1baf44`
+- SHA under review: the PR head that writes these two SHAs into this file. The Codex thread reply repeats that head in full. Until VERITY replies, nothing here is accepted. VERITY has NOT independently reviewed or certified anything.
 
 ## What is in the branch
 
